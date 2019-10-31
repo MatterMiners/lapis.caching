@@ -1,5 +1,5 @@
 from typing import Dict
-from usim import Scope, interval, Resources
+from usim import Scope, interval, time
 
 from lapis.drone import Drone
 from lapis.monitor import sampling_required
@@ -26,9 +26,10 @@ class CondorJobScheduler(object):
     :return:
     """
 
-    def __init__(self, job_queue):
+    def __init__(self, job_queue, fileprovider):
         self._stream_queue = job_queue
         self.drone_cluster = []
+        self.fileprovider = fileprovider
         self.interval = 60
         self.job_queue = JobQueue()
         self._collecting = True
@@ -91,7 +92,13 @@ class CondorJobScheduler(object):
                 for job in self.job_queue.copy():
                     best_match = self._schedule_job(job)
                     if best_match:
-                        await best_match.schedule_job(job)
+                        job.fileprovider = self.fileprovider
+                        print(
+                            "start job {} on drone {} @ {}".format(
+                                repr(job), repr(best_match), time.now
+                            )
+                        )
+                        scope.do(best_match.start_job(job))
                         self.job_queue.remove(job)
                         await sampling_required.put(self.job_queue)
                         self.unregister_drone(best_match)
