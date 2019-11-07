@@ -93,18 +93,17 @@ class Job(object):
         return float("Inf")
 
     @property
-    async def walltime(self):
-        print("DEBUG JOB hit walltime")
-        # TODO: reimplement that usedsize != filesize and change back to used_inputfiles
-        if (
-            self.drone.fileprovider
-            and await self.drone.fileprovider.input_file_coverage(
-                self.drone.sitename, self.requested_inputfiles, repr(self)
-            )
+    def walltime(self) -> float:
+        """
+        :return: Time that passes while job is running
+        """
+        return self._walltime
+
+    def recalculate_walltime(self):
+        if self.drone.fileprovider and self.drone.fileprovider.input_file_coverage(
+            self.drone.sitename, self.used_inputfiles
         ):
-            return walltime_models["maxeff"](self, self._walltime)
-        else:
-            return self._walltime
+            self._walltime = walltime_models["maxeff"](self, self._walltime)
 
     async def run(self):
         self.in_queue_until = time.now
@@ -117,7 +116,8 @@ class Job(object):
                 )
             )
         try:
-            await (time + await self.walltime)
+            self.recalculate_walltime()
+            await (time + self._walltime)
         except CancelTask:
             self.drone = None
             self._success = False
