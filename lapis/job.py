@@ -95,7 +95,6 @@ class Job(object):
     @property
     async def walltime(self):
         print("WALLTIME: Job {}".format(repr(self)))
-        # TODO: reimplement that usedsize != filesize and change back to used_inputfiles
         if (
             self.drone.fileprovider
             and await self.drone.fileprovider.input_file_coverage(
