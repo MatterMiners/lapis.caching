@@ -93,15 +93,14 @@ class Job(object):
         return float("Inf")
 
     @property
-    def walltime(self) -> float:
-        """
-        :return: Time that passes while job is running
-        """
-        return self._walltime
-
-    def recalculate_walltime(self):
-        if self.drone.fileprovider and self.drone.fileprovider.input_file_coverage(
-            self.drone.sitename, self.used_inputfiles
+    async def walltime(self):
+        print("WALLTIME: Job {}".format(repr(self)))
+        # TODO: reimplement that usedsize != filesize and change back to used_inputfiles
+        if (
+            self.drone.fileprovider
+            and await self.drone.fileprovider.input_file_coverage(
+                self.drone.sitename, self.requested_inputfiles, repr(self)
+            )
         ):
             self._walltime = walltime_models["maxeff"](self, self._walltime)
 
