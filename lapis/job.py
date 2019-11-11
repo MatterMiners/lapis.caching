@@ -93,15 +93,27 @@ class Job(object):
         return float("Inf")
 
     @property
-    async def walltime(self):
-        print("WALLTIME: Job {}".format(repr(self)))
-        if (
-            self.drone.fileprovider
-            and await self.drone.fileprovider.input_file_coverage(
-                self.drone.sitename, self.requested_inputfiles, repr(self)
+    def walltime(self) -> float:
+        """
+        :return: Time that passes while job is running
+        """
+        return self._walltime
+
+    def calculation_time(self):
+        print("WALLTIME: Job {} @ {}".format(repr(self), time.now))
+        return walltime_models["maxeff"](self, self._walltime)
+
+    async def transfer_inputfiles(self):
+        print("TRANSFERING INPUTFILES: Job {} @ {}".format(repr(self), time.now))
+        if self.drone.fileprovider and self.used_inputfiles:
+            stream_time = await self.drone.fileprovider.transfer_inputfiles(
+                self.drone, self.requested_inputfiles, repr(self)
             )
-        ):
-            self._walltime = walltime_models["maxeff"](self, self._walltime)
+        print(
+            "streamed inputfiles {} for job {} in {} timeunits, finished @ {}".format(
+                self.requested_inputfiles.keys(), repr(self), stream_time, time.now
+            )
+        )
 
     async def run(self):
         self.in_queue_until = time.now
@@ -114,8 +126,13 @@ class Job(object):
                 )
             )
         try:
+<<<<<<< HEAD
             self.recalculate_walltime()
             await (time + self._walltime)
+=======
+            await self.transfer_inputfiles()
+            await (time + self.calculation_time())
+>>>>>>> split processing of job into file transfer and actual calculation
         except CancelTask:
             self.drone = None
             self._success = False
