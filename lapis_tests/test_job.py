@@ -4,8 +4,8 @@ from usim import Scope, time
 from lapis.drone import Drone
 from lapis.job import Job
 
-from lapis.file_provider import FileProvider
-from lapis_tests import via_usim, DummyScheduler
+from lapis_tests import via_usim, DummyScheduler, DummyDrone
+from lapis.connection import Connection
 
 
 class TestJob(object):
@@ -49,7 +49,7 @@ class TestJob(object):
             scheduler=scheduler,
             pool_resources={"cores": 1, "memory": 1},
             scheduling_duration=0,
-            fileprovider=FileProvider(),
+            connection=Connection(),
         )
         await drone.run()
         async with Scope() as scope:
