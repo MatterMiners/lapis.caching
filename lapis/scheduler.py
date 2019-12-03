@@ -89,7 +89,9 @@ class CondorJobScheduler(object):
             scope.do(self._collect_jobs())
             async for _ in interval(self.interval):
                 print("NEW SCHEDULING INTERVAL @ {}".format(time.now))
-                for job in self.job_queue:
+                print(self.job_queue)
+                for job in self.job_queue.copy():
+                    print("SCHEDULING {}".format(repr(job)))
                     best_match = self._schedule_job(job)
                     if best_match:
                         print(
@@ -135,6 +137,11 @@ class CondorJobScheduler(object):
             drone = cluster[0]
             cost = 0
             resources = drone.theoretical_available_resources
+            # print(
+            #     "trying to match Job {} to {}, resources {}".format(
+            #         repr(job), repr(drone), resources
+            #     )
+            # )
             for resource_type in job.resources:
                 if resources.get(resource_type, 0) < job.resources[resource_type]:
                     # Inf for all job resources that a drone does not support
