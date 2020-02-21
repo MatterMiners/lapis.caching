@@ -6,6 +6,8 @@ from typing import Optional
 from lapis.job import Job
 from lapis.connection import Connection
 
+from lapis.monitor.duplicates import DroneStatusCaching
+
 
 class ResourcesExceeded(Exception):
     ...
@@ -68,6 +70,14 @@ class Drone(interfaces.Pool):
         await (time + self.scheduling_duration)
         self._supply = 1
         self.scheduler.register_drone(self)
+        await sampling_required.put(
+            DroneStatusCaching(
+                repr(self),
+                self.pool_resources["cores"],
+                self.theoretical_available_resources["cores"],
+                self.jobs_with_cached_data,
+            )
+        )
         await sampling_required.put(self)
         async with Scope() as scope:
             async for job, kill in self._job_queue:
@@ -118,7 +128,16 @@ class Drone(interfaces.Pool):
 
         self._supply = 0
         self.scheduler.unregister_drone(self)
+        await sampling_required.put(
+            DroneStatusCaching(
+                repr(self),
+                self.pool_resources["cores"],
+                self.theoretical_available_resources["cores"],
+                self.jobs_with_cached_data,
+            )
+        )
         await sampling_required.put(self)  # TODO: introduce state of drone
+
         await (time + 1)
 
     async def schedule_job(self, job: Job, kill: bool = False):
@@ -147,6 +166,14 @@ class Drone(interfaces.Pool):
                 self.jobs_with_cached_data += 1
             try:
                 async with self.resources.claim(**job.resources):
+                    await sampling_required.put(
+                        DroneStatusCaching(
+                            repr(self),
+                            self.pool_resources["cores"],
+                            self.theoretical_available_resources["cores"],
+                            self.jobs_with_cached_data,
+                        )
+                    )
                     await sampling_required.put(self)
                     if kill:
                         for resource_key in job.resources:
@@ -180,10 +207,19 @@ class Drone(interfaces.Pool):
             self.jobs -= 1
             if job._cached_data:
                 self.jobs_with_cached_data -= 1
+
             await self.scheduler.job_finished(job)
             self._utilisation = self._allocation = None
             self.scheduler.update_drone(self)
             await sampling_required.put(self)
+            await sampling_required.put(
+                DroneStatusCaching(
+                    repr(self),
+                    self.pool_resources["cores"],
+                    self.theoretical_available_resources["cores"],
+                    self.jobs_with_cached_data,
+                )
+            )
 
     def look_up_cached_data(self, job: Job):
         cached_data = 0
