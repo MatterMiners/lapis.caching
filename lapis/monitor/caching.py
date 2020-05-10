@@ -115,8 +115,6 @@ def pipe_status(pipeinfo: MonitoredPipeInfo) -> list:
     #     :param storage:
     #     :return:
     #     """
-    # print(pipeinfo)
-    # print(pipeinfo.requested_throughput)
     results = [
         {
             "pipe": repr(pipeinfo.pipename),

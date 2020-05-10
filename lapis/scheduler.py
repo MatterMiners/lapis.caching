@@ -97,11 +97,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
                 caches = self._wrapped.connection.storages.get(
                     self._wrapped.sitename, None
                 )
-                # print(caches)
                 try:
-                    # print(mean(
-                    #     [1. / cache.connection._throughput_scale for cache in caches]
-                    # ))
                     return mean(
                         [1.0 / cache.connection._throughput_scale for cache in caches]
                     )
@@ -112,11 +108,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
                 caches = self._wrapped.connection.storages.get(
                     self._wrapped.sitename, None
                 )
-                # print(caches)
                 try:
-                    # print(mean(
-                    #     [cache.connection._throughput_scale for cache in caches]
-                    # ))
                     return mean(
                         [cache.connection._throughput_scale for cache in caches]
                     )
@@ -129,11 +121,6 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
                 )
 
                 try:
-                    # print(sum(
-                    #     [cache.connection.throughput / 1000. / 1000. / 1000. for cache
-                    #      in
-                    #      caches]
-                    # ) / float(self._wrapped.pool_resources["cores"]))
                     return sum(
                         [
                             cache.connection.throughput / 1000.0 / 1000.0 / 1000.0
@@ -144,7 +131,6 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
                     return 0
 
             elif "cached_data" == item:
-                # print(self._wrapped, self._wrapped.cached_data / 1000. / 1000. / 1000.)
                 return self._wrapped.cached_data / 1000.0 / 1000.0 / 1000.0
 
             elif "data_volume" == item:
@@ -154,12 +140,9 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
                 return time.now - self._wrapped.queue_date
 
             elif "failed_matches" == item:
-                # print("evaluated", self._wrapped, self._wrapped.failed_matches)
                 return self._wrapped.failed_matches
 
             elif "jobs_with_cached_data" == item:
-                # print(self._wrapped)
-                # print(self._wrapped.jobs_with_cached_data)
                 return self._wrapped.jobs_with_cached_data
 
         return super(WrappedClassAd, self).__getitem__(item)
@@ -611,15 +594,6 @@ class CondorClassadJobScheduler(JobScheduler):
         self._drones: RankedClusters[Drone] = RankedNonClusters(
             quantization=quantization_defaults, ranking=parse(pre_job_rank)
         )
-        # if autocluster:
-        #     self._drones: RankedClusters[Drone] = RankedAutoClusters(
-        #         quantization=quantization_defaults, ranking=parse(pre_job_rank)
-        #     )
-        # else:
-        #     self._drones: RankedClusters[Drone] = RankedNonClusters(
-        #         quantization=quantization_defaults, ranking=parse(pre_job_rank)
-        #     )
-
         self.interval = interval
         self.job_queue = JobQueue()
         self._collecting = True
@@ -669,7 +643,6 @@ class CondorClassadJobScheduler(JobScheduler):
             if type(expr) is str:
                 expr = my[expr]
             result = expr.evaluate(my=my, target=target)
-            # print(f'>>> {expr}, {my}, {target}\n... {result}')
             return result
 
         if job["Requirements"] != Undefined():
@@ -719,8 +692,6 @@ class CondorClassadJobScheduler(JobScheduler):
         matches: List[Tuple[int, WrappedClassAd[Job], WrappedClassAd[Drone]]] = []
         for queue_index, candidate_job in enumerate(self.job_queue):
             try:
-                # print(time.now, candidate_job._wrapped,
-                #       candidate_job._wrapped.requested_inputfiles)
                 pre_job_drones.lookup(candidate_job._wrapped)
                 matched_drone = self._match_job(
                     candidate_job, pre_job_drones.cluster_groups()

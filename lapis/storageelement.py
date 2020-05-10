@@ -168,21 +168,11 @@ class StorageElement(Storage):
         :param job_repr: Needed for debug output, will be replaced
         :return: (amount of cached data, storage object)
         """
-        # print(
-        #     "LOOK UP FILE: Job {}, File {}, Storage {} @ {}".format(
-        #         job_repr, requested_file.filename, repr(self), time.now
-        #     )
-        # )
         try:
             result = LookUpInformation(
                 self.files[requested_file.filename].filesize, self
             )
         except KeyError:
-            # print(
-            #     "File {} not cached on any reachable storage".format(
-            #         requested_file.filename
-            #     )
-            # )
             result = LookUpInformation(0, self)
         return result
 
@@ -218,16 +208,6 @@ class HitrateStorage(StorageElement):
         return 0
 
     async def transfer(self, file: RequestedFile, job_repr=None):
-        # print(
-        #     "TRANSFER: {}, filesize {}, remote: {}/{}, cache: {}/{}".format(
-        #         self._hitrate,
-        #         file.filesize,
-        #         (1 - self._hitrate) * file.filesize,
-        #         self.remote_storage.connection.throughput,
-        #         self._hitrate * file.filesize,
-        #         self.connection.throughput,
-        #     )
-        # )
         async with Scope() as scope:
             logging.getLogger("implementation").warning(
                 "{} {} @ {} in {}".format(
@@ -280,17 +260,6 @@ class FileBasedHitrateStorage(StorageElement):
         return 0
 
     async def transfer(self, file: RequestedFile_HitrateBased, job_repr=None):
-        # print(
-        #     "TRANSFER: on {} with {}, filesize {}, remote: {}/{}, cache: {}/{}".format(
-        #         self.name,
-        #         file.cachehitrate,
-        #         file.filesize,
-        #         (1 - file.cachehitrate) * file.filesize,
-        #         self.remote_storage.connection.throughput,
-        #         file.cachehitrate * file.filesize,
-        #         self.connection.throughput,
-        #     )
-        # )
         if file.cachehitrate:
             await self.connection.transfer(total=file.filesize)
             await sampling_required.put(self.connection)
@@ -300,7 +269,6 @@ class FileBasedHitrateStorage(StorageElement):
             raise ValueError
 
     def find(self, requested_file: RequestedFile_HitrateBased, job_repr=None):
-        # return LookUpInformation(requested_file.filesize, self)
         return LookUpInformation(
             requested_file.filesize * requested_file.cachehitrate, self
         )

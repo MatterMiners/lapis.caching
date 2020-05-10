@@ -131,13 +131,7 @@ class Connection(object):
                         )
                 except KeyError:
                     pass
-        # print(f"now transfering {requested_file.filesize} from {used_connection}")
         await used_connection.transfer(requested_file, job_repr=job_repr)
-        # print(
-        #     "Job {}: finished transfering of file {}: {}B @ {}".format(
-        #         job_repr, requested_file.filename, requested_file.filesize, time.now
-        #     )
-        # )
 
     async def transfer_files(self, drone, requested_files: dict, job_repr):
         """
@@ -153,9 +147,7 @@ class Connection(object):
 
         # decision if a jobs inputfiles are cached based on hitrate
         random_inputfile_information = next(iter(requested_files.values()))
-        # print(time.now, job_repr, requested_files, drone.sitename)
         if "hitrates" in random_inputfile_information.keys():
-            # print(job_repr, "contains hitrates")
             try:
                 hitrate = sum(
                     [
@@ -164,9 +156,7 @@ class Connection(object):
                     ]
                 ) / sum([file["usedsize"] for file in requested_files.values()])
                 provides_file = int(random.random() < hitrate)
-                # print(job_repr, hitrate, provides_file)
 
-                # input()
             except ZeroDivisionError:
                 hitrate = 0
                 provides_file = 0
@@ -179,7 +169,6 @@ class Connection(object):
             )
         )
         job_repr._read_from_cache = provides_file
-        # print(job_repr, job_repr._read_from_cache)
 
         for inputfilename, inputfilespecs in requested_files.items():
             if "hitrates" in inputfilespecs.keys():
@@ -193,7 +182,4 @@ class Connection(object):
                 )
             await self.stream_file(requested_file, drone.sitename, job_repr)
         stream_time = time.now - start_time
-        # print(
-        #     "STREAMED files {} in {}".format(list(requested_files.keys()), stream_time)
-        # )
         return stream_time

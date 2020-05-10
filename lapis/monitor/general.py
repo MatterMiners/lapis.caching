@@ -77,7 +77,6 @@ def user_demand(job_queue: JobQueue) -> List[Dict]:
     :param scheduler: the scheduler
     :return: list of records for logging
     """
-    # print("user_demand", job_queue)
     result = [{"value": len(job_queue)}]
     return result
 

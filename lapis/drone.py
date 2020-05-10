@@ -198,13 +198,7 @@ class Drone(interfaces.Pool):
                                 pass
                     # self.scheduler.update_drone(self)
                     await job_execution.done
-                    # print(
-                    #     "finished job {} on drone {} @ {}".format(
-                    #         repr(job), repr(self), time.now
-                    #     )
-                    # )
             except ResourcesUnavailable:
-                # print(repr(job), "ResourcesUnavailable")
                 await instant
                 job_execution.cancel()
                 await instant

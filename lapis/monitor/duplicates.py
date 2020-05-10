@@ -24,7 +24,6 @@ def user_demand_tmp(user_demand: UserDemand) -> List[Dict]:
     :param scheduler: the scheduler
     :return: list of records for logging
     """
-    # print("user_demand", job_queue)
     result = [{"value": user_demand.value}]
     return result
 

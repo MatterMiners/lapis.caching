@@ -145,11 +145,6 @@ class Job(object):
         :param calculation_efficiency:
         :return:
         """
-        # print(
-        #     f"WALLTIME: Job {self} @ {time.now}, "
-        #     f"{self.used_resources.get('cores', None)}, "
-        #     f"{self.calculation_efficiency}"
-        # )
         result = self.walltime
         try:
             if (
@@ -165,21 +160,14 @@ class Job(object):
 
         except (KeyError, TypeError):
             pass
-        # start = time.now
         await (time + result)
-        # print(f"finished calculation at {time.now - start}")
 
     async def _transfer_inputfiles(self):
         start = time.now
         try:
-            # print(f"TRANSFERING INPUTFILES: Job {self} @ {start}")
             await self.drone.connection.transfer_files(
                 drone=self.drone, requested_files=self.used_inputfiles, job_repr=self
             )
-            # print(
-            #     f"streamed inputfiles {self.used_inputfiles.keys()} for job {self} "
-            #     f"in {time.now - start} timeunits, finished @ {time.now}"
-            # )
         except AttributeError:
             pass
         self._transfer_time = time.now - start
@@ -190,7 +178,6 @@ class Job(object):
         self.in_queue_until = time.now
         self._success = None
         await sampling_required.put(self)
-        # print("running job {}  in drone {}".format(repr(self), repr(self.drone)))
         try:
 
             start = time.now
@@ -211,10 +198,7 @@ class Job(object):
             # TODO: in_queue_until is still set
             raise
         else:
-            # old_walltime = self.walltime
             self.walltime = time.now - start
-            # print(f"monitored walltime of {old_walltime} changed to {self.walltime}")
-            # self.drone = None
             self._success = True
             await sampling_required.put(self)
 
