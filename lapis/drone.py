@@ -1,6 +1,6 @@
 from cobald import interfaces
 
-from usim import time, Scope, instant, Capacities, ResourcesUnavailable
+from usim import time, Scope, instant, Capacities, ResourcesUnavailable, Queue
 from typing import Optional
 
 from lapis.job import Job
