@@ -54,7 +54,7 @@ class TestSimulationTimeFilter(object):
         filter = SimulationTimeFilter()
         async with Scope() as _:
             filter.filter(record)
-        assert record.created == 0
+        assert record.created == pytest.approx(0, abs=1e-9)
 
 
 def dummy_statistics():
