@@ -51,8 +51,8 @@ class TestStorageReader(object):
             ):
                 assert storage is not None
                 assert type(storage.available) == int
-                assert storage.available == int(5.0 * 1024 * 1024 * 1024)
+                assert storage.available == int(5.0 * 1000 * 1000 * 1000)
                 assert type(storage.size) == int
-                assert storage.size == int(10.0 * 1024 * 1024 * 1024)
+                assert storage.size == int(10.0 * 1000 * 1000 * 1000)
                 count += 1
             assert count == 1
