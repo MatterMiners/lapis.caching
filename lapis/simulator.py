@@ -115,7 +115,8 @@ class Simulator(object):
             for controller in self.controllers:
                 while_running.do(controller.run(), volatile=True)
             while_running.do(self.monitoring.run(), volatile=True)
-            while_running.do(self.connection.run_pipemonitoring(), volatile=True)
+            if self.connection:
+                while_running.do(self.connection.run_pipemonitoring(), volatile=True)
         self.duration = time.now
         print(
             f"[lapis-{monitor.SIMULATION_START}] Finished simulation at {self.duration}"
