@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 import json
 from functools import partial
 
-from lapis_tests import via_usim, DummyDrone
+from lapis_tests import via_usim, DummyDrone, DummyJob
 from lapis.connection import Connection
 from lapis.storageelement import HitrateStorage
 from lapis.storage_io.storage import storage_reader
@@ -66,11 +66,12 @@ class TestHitrateCaching(object):
         throughput = 10
         size = 1000
         drone = DummyDrone(throughput)
-        requested_files = dict(test=dict(usedsize=100))
+        job = DummyJob(True)
+        requested_files = dict(test=dict(usedsize=100, hitrates={drone.sitename: 1.0}))
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         drone.connection.add_storage_element(hitratestorage)
         stream_time = await drone.connection.transfer_files(
-            drone=drone, requested_files=requested_files, job_repr="test"
+            drone=drone, requested_files=requested_files, job_repr=job
         )
 
         assert time.now == 5
@@ -81,11 +82,13 @@ class TestHitrateCaching(object):
         throughput = 10
         size = 1000
         drone = DummyDrone(throughput)
-        requested_files = dict(test1=dict(usedsize=100), test2=dict(usedsize=200))
+        job = DummyJob(True)
+        requested_files = dict(test1=dict(usedsize=100, hitrates={drone.sitename: 1.0}),
+                               test2=dict(usedsize=200, hitrates={drone.sitename: 1.0}))
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         drone.connection.add_storage_element(hitratestorage)
         stream_time = await drone.connection.transfer_files(
-            drone=drone, requested_files=requested_files
+            drone=drone, requested_files=requested_files, job_repr=job
         )
         assert time.now == 15
         assert stream_time == 15
