@@ -11,6 +11,10 @@ class LookUpInformation(NamedTuple):
 
 
 class Storage(metaclass=abc.ABCMeta):
+    """
+    This class represents the basic structures of all representations of storage
+    in this simulation.
+    """
     @property
     @abc.abstractmethod
     def size(self) -> int:

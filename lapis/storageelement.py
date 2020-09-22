@@ -11,7 +11,21 @@ import logging
 
 
 class RemoteStorage(Storage):
+    """
+    The RemoteStorage object represents the entirety of (WLCG) grid storage. All
+    files that can be requested by a job are provided by remote storage and it's size
+    is therefore approximated as infinite. Files are transferred from this storage
+    via the associated pipe, a network bandwidth model. There can be multiple remote
+    storages in the simulation because resource pools may have differing network
+    connections.
+    """
+    # TODO:: ensure that there can be multiple remote storages in the simulation
     def __init__(self, pipe: MonitoredPipe):
+        """
+        Initialization of the remote storages pipe, representing the network
+        connection to remote storage with a limited bandwidth.
+        :param pipe:
+        """
         self.connection = pipe
         pipe.storage = repr(self)
 
@@ -28,20 +42,41 @@ class RemoteStorage(Storage):
         return 0
 
     async def transfer(self, file: RequestedFile, **kwargs):
+        """
+        Simulates the transfer of a requested file via the remote storage's pipe.
+        :param file: representation of the requested file
+        """
         await self.connection.transfer(total=file.filesize)
         await sampling_required.put(self.connection)
 
     async def add(self, file: StoredFile, **kwargs):
+        """
+        All files are contained in remote storage. Therefore no functionality to
+        adding files is provided.
+        """
         raise NotImplementedError
 
     async def remove(self, file: StoredFile, **kwargs):
+        """
+        All files are contained in remote storage. Therefore no functionality
+        to removing files is provided.
+        """
         raise NotImplementedError
 
     def find(self, file: RequestedFile, **kwargs) -> LookUpInformation:
+        """
+        All files are contained in remote storage. Therefore no functionality
+        to determine whether the storage cotains a certain file is provided.
+        """
         raise NotImplementedError
 
 
 class StorageElement(Storage):
+    """
+    The StorageElement object represents a local data storage or cache containing an
+    exact list of files and providing functionality to transfer and change the
+    storage's content.
+    """
 
     __slots__ = (
         "name",
@@ -63,11 +98,27 @@ class StorageElement(Storage):
         size: int = 1000 * 1000 * 1000 * 1000,
         throughput_limit: int = 10 * 1000 * 1000 * 1000,
         files: Optional[dict] = None,
+        deletion_duration: float = 5,
+        update_duration: float = 1
     ):
+        """
+        Intialization of a storage element object.
+
+        :param name: identification of the storage
+        :param sitename:
+        :param size: total size of the storage in bytes
+        :param throughput_limit: maximal bandwidth of the network connection to this
+        storage
+        :param files: dictionary of the files that are currently stored
+        :param deletion_duration: in seconds, amount of time passing while a file is
+        deleted from the storage
+        :param update_duration:  in seconds, amount of time passing while a file's
+        information is updated
+        """
         self.name = name
         self.sitename = sitename
-        self.deletion_duration = 5
-        self.update_duration = 1
+        self.deletion_duration = deletion_duration
+        self.update_duration = update_duration
         self._size = size
         self.files = files
         self._usedstorage = Resources(
@@ -94,35 +145,26 @@ class StorageElement(Storage):
         """
         Deletes file from storage object. The time this operation takes is defined
         by the storages deletion_duration attribute.
-        :param file:
+        :param file: representation of the file that is removed from the storage
         :param job_repr: Needed for debug output, will be replaced
         :return:
         """
-        print(
-            "REMOVE FROM STORAGE: Job {}, File {} @ {}".format(
-                job_repr, file.filename, time.now
-            )
-        )
         await (time + self.deletion_duration)
         await self._usedstorage.decrease(size=file.filesize)
         self.files.pop(file.filename)
 
     async def add(self, file: RequestedFile, job_repr=None):
         """
-        Adds file to storage object transfering it through the storage objects
+        Adds file to storage object transferring it through the storage object's
         connection. This should be sufficient for now because files are only added
-        to the storage when they are also transfered through the Connections remote
+        to the storage when they are also transferred through the Connections remote
         connection. If this simulator is extended to include any kind of
         direct file placement this has to be adapted.
-        :param file:
+        :param file: representation of the file that is added to the storage
         :param job_repr: Needed for debug output, will be replaced
         :return:
         """
-        print(
-            "ADD TO STORAGE: Job {}, File {} @ {}".format(
-                job_repr, file.filename, time.now
-            )
-        )
+
         file = file.convert_to_stored_file_object(time.now)
         await self._usedstorage.increase(size=file.filesize)
         self.files[file.filename] = file
@@ -138,11 +180,6 @@ class StorageElement(Storage):
         await (time + self.update_duration)
         stored_file.lastaccessed = time.now
         stored_file.increment_accesses()
-        print(
-            "UPDATE: Job {}, File {} @ {}".format(
-                job_repr, stored_file.filename, time.now
-            )
-        )
 
     async def transfer(self, file: RequestedFile, job_repr=None):
         """
@@ -181,6 +218,17 @@ class StorageElement(Storage):
 
 
 class HitrateStorage(StorageElement):
+    """
+    This class was used in early simulation concepts but is outdated now!
+    You're probably looking for FileBasedHitrateStorage instead!
+
+    Simplified storage object, used to simulate a simplified form of hitrate based
+    caching.  No explicit list of stored files is kept. Instead, it is assumed that a
+    fraction `_hitrate` of all files is stored. Every time a file is requested from
+    this kind of storage, `_hitrate` percent of the file are found on and transferred from this storage.
+    1 - `_hitrate` percent of the file are transferred from the remote storage
+    associated to the hitrate storage.
+    """
     def __init__(
         self,
         hitrate,
@@ -208,6 +256,15 @@ class HitrateStorage(StorageElement):
         return 0
 
     async def transfer(self, file: RequestedFile, job_repr=None):
+        """
+        Every time a file is requested from this kind of storage, `_hitrate` percent
+        of the file are found on and transferred from this storage.
+        1 - `_hitrate` percent of the file are transferred from the remote storage
+        associated to the hitrate storage.
+        :param file:
+        :param job_repr:
+        :return:
+        """
         async with Scope() as scope:
             logging.getLogger("implementation").warning(
                 "{} {} @ {} in {}".format(
@@ -228,13 +285,30 @@ class HitrateStorage(StorageElement):
         return LookUpInformation(requested_file.filesize, self)
 
     async def add(self, file: RequestedFile, job_repr=None):
+        """
+        As files are not contained explicitly, no functionality to add files is
+        needed
+        """
         pass
 
     async def remove(self, file: StoredFile, job_repr=None):
+        """
+        As files are not contained explicitly, no functionality to remove files is
+        needed
+        """
         pass
 
 
 class FileBasedHitrateStorage(StorageElement):
+    """
+    Simplified storage object. There is no explicit list of contained files.
+    Instead, it is stated in file information (`RequestedFile_HitrateBased`)
+    whether this file is currently stored. Whether this is the case was determined in
+    the connection module's file transfer functionality.
+    The definition of the storage objects size is currently irrelevant.
+
+    #TODO: this storage object has become very intermingled with the connection module and should be tidied up and restructured!
+    """
     def __init__(
         self,
         name: Optional[str] = None,
@@ -269,12 +343,27 @@ class FileBasedHitrateStorage(StorageElement):
             raise ValueError
 
     def find(self, requested_file: RequestedFile_HitrateBased, job_repr=None):
+        """
+        Returns the expectation value for the amount of data of this file that are
+        cached.
+        :param requested_file:
+        :param job_repr:
+        :return:
+        """
         return LookUpInformation(
             requested_file.filesize * requested_file.cachehitrate, self
         )
 
     async def add(self, file: RequestedFile, job_repr=None):
+        """
+        As there is no explicit record of stored files, no functionality to add files is
+        needed
+        """
         pass
 
     async def remove(self, file: StoredFile, job_repr=None):
+        """
+        As there is no explicit record of stored files, no functionality to
+        remove files is needed
+        """
         pass
