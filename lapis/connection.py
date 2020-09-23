@@ -17,6 +17,20 @@ from lapis.monitor.caching import HitrateInfo
 
 
 class Connection(object):
+    """
+    Class that manages and triggers file transfers. It contains a mapping of
+    sitenames to storages in the `storages` dictionary and a global remote storage.
+    It can be used in file based and hitrate based caching mode, however the current
+    version is designed for hitrate based caching and the file based caching
+    functionality should be tested thoroughly before being activated.
+
+    TODO:: this concept should be abolished, remote storages should be created based
+    on configs as normal storages. There should be an additional site class that
+    manages the mapping of storages and drones and the connection class should be
+    limited to managing and directing file transfers to the correct site, if this is
+    even necessary. Furthermore, the mechanics for choosing between caching scenarios
+    should be redesigned.
+    """
 
     __slots__ = (
         "storages",
@@ -26,6 +40,11 @@ class Connection(object):
     )
 
     def __init__(self, throughput=1000 * 1000 * 1000, filebased_caching=True):
+        """
+        Intialization of the connection object
+        :param throughput: throughput of the connection's remote storage
+        :param filebased_caching:
+        """
         self.storages = dict()
         self.remote_connection = RemoteStorage(MonitoredPipe(throughput=throughput))
         self.caching_algorithm = CacheAlgorithm(
@@ -38,9 +57,12 @@ class Connection(object):
         self._filebased_caching = filebased_caching
 
     async def run_pipemonitoring(self):
+        """
+        Starts monitoring of pipe objects, should be called during simulator/monitoring
+        initialization.
+        """
         async def report_load_to_monitoring(pipe: MonitoredPipe):
             async for information in pipe.load():
-                # print(information)
                 await sampling_required.put(information)
 
         async with Scope() as scope:
@@ -51,7 +73,7 @@ class Connection(object):
 
     def add_storage_element(self, storage_element: StorageElement):
         """
-        Register storage element in Connetion module clustering storage elements by
+        Register storage element in Connetion module,  clustering storage elements by
         sitename
         :param storage_element:
         :return:
@@ -136,7 +158,7 @@ class Connection(object):
     async def transfer_files(self, drone, requested_files: dict, job_repr):
         """
         Converts dict information about requested files to RequestedFile object and
-        sequentially streams all files
+        sequentially streams all files. If there is information about input files but no informations about the file size, th
         :param drone:
         :param requested_files:
         :param job_repr:
@@ -160,6 +182,9 @@ class Connection(object):
             except ZeroDivisionError:
                 hitrate = 0
                 provides_file = 0
+        #TODO:: In which cases is hitrate not defined and how can they be covered? I
+        # think that in this case this code should not be reached but I'm unsure
+        # right now
 
         await sampling_required.put(
             HitrateInfo(
