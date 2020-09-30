@@ -74,7 +74,20 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
             return self._wrapped.theoretical_available_resources["cores"] < 1
 
     def __getitem__(self, item):
+        """
+        This method is used when evaluating classad expressions.
+        :param item: name of a quantity in the classad expression
+        :return: current value of this item
+        """
         def access_wrapped(name, requested=True):
+            """
+            Extracts the wrapped object's current quantity of a certain resource (
+            cores, memory, disk)
+            :param name: name of the reosurce that is to be accessed
+            :param requested: false if name is a resource of the drone, true if name
+            is a resource requested by a job
+            :return: value of respective resource
+            """
             if isinstance(self._wrapped, Drone):
                 return self._wrapped.theoretical_available_resources[name]
             if requested:
@@ -350,7 +363,8 @@ class RankedAutoClusters(RankedClusters[DJ]):
         Calculates an item's clustering key based on the specified ranking (in my use
         case the prejobrank) and the item's available resource. The resulting key's
         structure is (prejobrank value, (available cpus, available memory, available
-        disk space))
+        disk space)). The clustering key is negative as the SortedDict sorts its entries
+        from low keys to high keys.
         :param item: drone for which the clustering key is calculated.
         :return: (prejobrank value, (available cpus, available memory, available
         disk space))
@@ -449,6 +463,11 @@ class RankedNonClusters(RankedClusters[DJ]):
         self.add(item)
 
     def _clustering_key(self, item: WrappedClassAd[DJ]):
+        """
+        For RankNonClusters there is only one clustering key, the objects defined
+        ranking. The clustering key is negative as the SortedDict sorts its entries
+        from low keys to high keys.
+        """
         return -1.0 * self._ranking.evaluate(my=item)
 
     def clusters(self) -> Iterator[Set[WrappedClassAd[DJ]]]:
@@ -458,7 +477,12 @@ class RankedNonClusters(RankedClusters[DJ]):
         return iter(self._clusters.items())
 
     def cluster_groups(self) -> Iterator[List[Set[WrappedClassAd[Drone]]]]:
-
+        """
+        Sorts cluster by the ranking key. As there is no autoclustering, every drone
+        is in a dedicated set and drones of the same ranking are combined into a list.
+        These lists are then sorted by increasing ranking.
+        :return: iterator of the lists containing drones with identical key
+        """
         for _ranked_key, drones in self._clusters.items():
             yield [{item} for item in drones]
 
@@ -482,8 +506,6 @@ class CondorClassadJobScheduler(JobScheduler):
     putting a job at a given slot is given by the amount of resources that
     might remain unallocated.
     :return:
-
-    - aktuell nur pre job rank und job rank, kein post job rank implementiert
     """
 
     def __init__(
