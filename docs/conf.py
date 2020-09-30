@@ -44,6 +44,8 @@ release = version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+#    "sphinx_automodapi.automodapi",
+    "sphinx.ext.autosummary",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
@@ -52,6 +54,12 @@ extensions = [
     "sphinxcontrib.contentui",
     "sphinx_click.ext",
 ]
+
+
+autodoc_default_flags = ['members']
+autosummary_generate = True
+autodoc_mock_imports = ["cobald", "usim", "sortedcontainers", "classad"]
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

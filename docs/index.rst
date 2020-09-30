@@ -92,6 +92,17 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+Class overview
+--------------
+
+
+.. autosummary::
+   :toctree: stubs
+
+   lapis.files
+   lapis.job
+
+
 .. _HTCondor: https://research.cs.wisc.edu/htcondor/
 .. _COBalD: https://cobald.readthedocs.io/en/latest/
 .. _TARDIS: https://cobald-tardis.readthedocs.io/en/latest
