@@ -14,6 +14,9 @@ class ResourcesExceeded(Exception):
 
 
 class Drone(interfaces.Pool):
+    """
+    Represents worker nodes in the simulation.
+    """
     def __init__(
         self,
         scheduler,
@@ -28,9 +31,15 @@ class Drone(interfaces.Pool):
         < 1,
     ):
         """
-        :param scheduler:
-        :param pool_resources:
-        :param scheduling_duration:
+        Drone initialization
+        :param scheduler: scheduler that assigns jobs to the drone
+        :param pool_resources: dict of the drone's resources
+        :param scheduling_duration: amount of time that passes between the drone's
+        start up and it's registration at the scheduler
+        :param ignore_resources: dict of the resource keys that are ignored, e.g. "disk"
+        :param sitename: identifier, used to determine which caches a drone can use
+        :param connection: connection object that holds remote connection and handles file transfers
+        :param empty: callable that determines whether the drone is currently running any jobs
         """
         super(Drone, self).__init__()
         self.scheduler = scheduler
@@ -62,17 +71,37 @@ class Drone(interfaces.Pool):
         self.cached_data = 0
 
     def empty(self):
+        """
+        Checks whether there are any jobs running on this drone
+        :return: true if no jobs are running on this drone, false else
+        """
         return self._empty(self)
 
     @property
     def theoretical_available_resources(self):
+        """
+        Returns the amount of resources of the drone that were available if all jobs
+        used exactly the amount of resources they requested
+        :return:
+        """
         return dict(self.resources.levels)
 
     @property
     def available_resources(self):
+        """
+        Returns the amount of resources of the drone that are available based on the
+        amount of resources the running jobs actually use.
+        :return:
+        """
         return dict(self.used_resources.levels)
 
     async def run(self):
+        """
+        Handles the drone's activity during simulation. Upon execution the drone
+        registers itself at the scheduler and once jobs are scheduled to the drone's
+        job queue, these jobs are executed. Starting jobs via a job queue was
+        introduced to avoid errors in resource allocation and monitoring.
+        """
         from lapis.monitor import sampling_required
 
         await (time + self.scheduling_duration)
@@ -132,6 +161,9 @@ class Drone(interfaces.Pool):
         self._utilisation = min(resources)
 
     async def shutdown(self):
+        """
+        Upon shutdown, the drone unregisters from the scheduler.
+        """
         from lapis.monitor import sampling_required
 
         self._supply = 0
@@ -149,18 +181,26 @@ class Drone(interfaces.Pool):
         await (time + 1)
 
     async def schedule_job(self, job: Job, kill: bool = False):
+        """
+        A job is scheduled to a drone by putting it in the drone's job queue.
+        :param job: job that was matched to the drone
+        :param kill: flag, if true jobs can be killed if they use more resources than they requested
+        """
         await self._job_queue.put((job, kill))
 
     async def _run_job(self, job: Job, kill: bool):
         """
         Method manages to start a job in the context of the given drone.
-        The job is started independent of available resources. If resources of
-        drone are exceeded, the job is killed.
-
+        The job is started regardless of the available resources. The resource
+        allocation takes place after starting the job and the job is killed if the
+        drone's overall resources are exceeded. In addition, if the `kill` flag is
+        set, jobs are killed if the resources they use exceed the resources they
+        requested.
+        Then the end of the job's execution is awaited and the drones status
+        known to the scheduler is changed.
         :param job: the job to start
         :param kill: if True, a job is killed when used resources exceed
                      requested resources
-        :return:
         """
         job.drone = self
         async with Scope() as scope:
@@ -224,6 +264,15 @@ class Drone(interfaces.Pool):
             )
 
     def look_up_cached_data(self, job: Job):
+        """
+        Determines the amount of the job's input data that is stored in caches the
+        drone can access and sets the drone's `cached_data` attribute to the
+        resulting value. This quantity can then be used in the job matching process.
+        *Pay attention to the fact that the current implementation only works for
+        hitrate based caching and that while KeyErrors should not occur due to the
+        way the method is called, KeyErrors are not handled here.*
+        :param job:
+        """
         cached_data = 0
         caches = self.connection.storages.get(self.sitename, None)
         if caches:
