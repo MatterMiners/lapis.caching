@@ -78,8 +78,6 @@ Caching-specific Monitoring
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: lapis.monitor.caching.storage_status
-.. autofunction:: lapis.monitor.caching.storage_connection
-.. autofunction:: lapis.monitor.caching.remote_connection
 
 Telegraf
 --------

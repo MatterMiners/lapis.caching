@@ -95,12 +95,22 @@ Indices and tables
 Class overview
 --------------
 
-
 .. autosummary::
-   :toctree: stubs
+      :toctree: stubs
 
-   lapis.files
-   lapis.job
+      lapis.connection
+      lapis.drone
+      lapis.files
+      lapis.storageelement
+      lapis.pool
+      lapis.monitoredpipe
+      lapis.simulator
+      lapis.scheduler
+      lapis.job
+
+
+
+
 
 
 .. _HTCondor: https://research.cs.wisc.edu/htcondor/
