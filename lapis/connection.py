@@ -2,7 +2,8 @@ import random
 
 from typing import Union, Optional
 from usim import Scope, time
-from monitoredpipe import MonitoredPipe
+from lapis.monitoredpipe import MonitoredPipe
+
 
 from lapis.cachealgorithm import (
     CacheAlgorithm,
@@ -25,11 +26,11 @@ class Connection(object):
     functionality should be tested thoroughly before being activated.
 
     TODO:: this concept should be abolished, remote storages should be created based
-    on configs as normal storages. There should be an additional site class that
-    manages the mapping of storages and drones and the connection class should be
-    limited to managing and directing file transfers to the correct site, if this is
-    even necessary. Furthermore, the mechanics for choosing between caching scenarios
-    should be redesigned.
+     on configs as normal storages. There should be an additional site class that
+     manages the mapping of storages and drones and the connection class should be
+     limited to managing and directing file transfers to the correct site, if this is
+     even necessary. Furthermore, the mechanics for choosing between caching scenarios
+     should be redesigned.
     """
 
     __slots__ = (
@@ -46,7 +47,9 @@ class Connection(object):
         :param filebased_caching:
         """
         self.storages = dict()
+        """dictionary containing storage objects known to the connection module"""
         self.remote_connection = RemoteStorage(MonitoredPipe(throughput=throughput))
+        """pipe object representing the connection to a remote storage"""
         self.caching_algorithm = CacheAlgorithm(
             caching_strategy=lambda file, storage: check_size(file, storage)
             and check_relevance(file, storage),
@@ -54,7 +57,10 @@ class Connection(object):
                 file, storage
             ),
         )
+        """cache behavior filebased caching, contains both caching and deletion 
+        strategy"""
         self._filebased_caching = filebased_caching
+        """flag, true if filebased caching is current caching mode"""
 
     async def run_pipemonitoring(self):
         """
@@ -75,6 +81,7 @@ class Connection(object):
         """
         Register storage element in Connetion module,  clustering storage elements by
         sitename
+
         :param storage_element:
         :return:
         """
@@ -97,6 +104,7 @@ class Connection(object):
         and the storage object where the biggest part of the file is cached is
         returned. If the file is not cached in any storage object the connection module
         remote connection is returned.
+
         :param requested_file:
         :param dronesite:
         :param job_repr:
@@ -124,6 +132,7 @@ class Connection(object):
         startes the files transfer. For files transfered via remote connection a
         potential cache decides whether to cache the file and handles the caching
         process.
+
         :param requested_file:
         :param dronesite:
         :param job_repr:
@@ -158,7 +167,8 @@ class Connection(object):
     async def transfer_files(self, drone, requested_files: dict, job_repr):
         """
         Converts dict information about requested files to RequestedFile object and
-        sequentially streams all files. If there is information about input files but no informations about the file size, th
+        sequentially streams all files.
+
         :param drone:
         :param requested_files:
         :param job_repr:

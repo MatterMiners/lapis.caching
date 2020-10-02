@@ -37,6 +37,11 @@ logging.getLogger("implementation").propagate = False
 
 class Simulator(object):
     def __init__(self, seed=1234):
+        """
+        Initializes simulator
+
+        :param seed: random seed
+        """
         random.seed(seed)
         self.job_queue: Queue = Queue()
         self.pools: List[Pool] = []

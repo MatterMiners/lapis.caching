@@ -1,6 +1,5 @@
 import logging
 from typing import Optional, TYPE_CHECKING
-
 from usim import time, Scope, instant
 from usim import CancelTask
 
@@ -14,14 +13,15 @@ class Job(object):
     """
     Objects of this class represent jobs. The job is described from the batch
     system's viewpoint by the following attributes:
-        :param resources: information about the resources requested by the job
-        :param used_resources: information about the resources used by the job
-        :param walltime: the job's runtime, in reality as well as in the simulation
-        :param requested_walltime: walltime requested by the job
-        :param cputime: the cumulated amount of time the used CPU(s) was (were) active
-        during the job's execution
-        :param queue_date: time when the job was submitted to the simulated job queue
-        _success: represents whether the job was run successfully
+
+    :param resources: information about the resources requested by the job
+    :param used_resources: information about the resources used by the job
+    :param walltime: the job's runtime, in reality as well as in the simulation
+    :param requested_walltime: walltime requested by the job
+    :param cputime: the cumulated amount of time the used CPU(s) was (were) active
+    during the job's execution
+    :param queue_date: time when the job was submitted to the simulated job queue
+    _success: represents whether the job was run successfully
 
     In addition, functionality allowing the simulation of data transfers is provided. In
     this case, the job attributes have to be extended by information about the job's
@@ -34,31 +34,31 @@ class Job(object):
     data set was transferred in a large number of blocks, the job's runtime (walltime)
     can be recalculated using max(calculation time, transfer time).
 
-        :param requested_inputfiles: information about the input files requested by a job
-        :param used_inputfiles: information about the input files actually read by a job
-        :param _total_input_data: data volume of used_inputfiles, amount of data
-        processed by the job
-        :param _original_walltime: the job's walltime as the simulation's input
-        states. Is stored for monitoring purposes as the job's walltime can be
-        altered
-        :param _calculation_time: the calculation time represents the time needed to
-        process the job's input data
-        :param calculation_efficiency: represents the efficiency of calculations
-        performed on the job's input data. Default = 1.0. Can be modified to take
-        programmatical insufficiencies into account. 
-        :param _transfer_time: the transfer time represents the time needed to
-        transfer the job's input data.
+    :param requested_inputfiles: information about the input files requested by a job
+    :param used_inputfiles: information about the input files actually read by a job
+    :param _total_input_data: data volume of used_inputfiles, amount of data
+    processed by the job
+    :param _original_walltime: the job's walltime as the simulation's input
+    states. Is stored for monitoring purposes as the job's walltime can be
+    altered
+    :param _calculation_time: the calculation time represents the time needed to
+    process the job's input data
+    :param calculation_efficiency: represents the efficiency of calculations
+    performed on the job's input data. Default = 1.0. Can be modified to take
+    programmatical insufficiencies into account.
+    :param _transfer_time: the transfer time represents the time needed to
+    transfer the job's input data.
 
     As the simulation of data transfers is used to simulate and study caching,
     the following metadata are introduced and used for monitoring purposes.
-        :param _read_from_cache: true if job read data from cache
-        :param _cached_data: the amount of input data that is currently cached
-        :param failed_matches: number of times a match of this job to a resource was
-        rejected (see scheduler for details)
-        :param cache_probability: the averaged probability that all data are cached
-        (sum(filesize * hitrate = probability that file is cached) / sum(filesize))
-        :param expectation_cached_data: the expectation value for the amount of
-        cached data (sum(filesize * hitrate))
+    :param _read_from_cache: true if job read data from cache
+    :param _cached_data: the amount of input data that is currently cached
+    :param failed_matches: number of times a match of this job to a resource was
+    rejected (see scheduler for details)
+    :param cache_probability: the averaged probability that all data are cached
+    (sum(filesize * hitrate = probability that file is cached) / sum(filesize))
+    :param expectation_cached_data: the expectation value for the amount of
+    cached data (sum(filesize * hitrate))
     """
 
     __slots__ = (
@@ -108,12 +108,16 @@ class Job(object):
         :param in_queue_since: Time when job was inserted into the queue of the
                                simulation scheduler
         :param queue_date: Time when job was inserted into queue in real life
-        :param name: Name of the job
-        :param drone: Drone where the job is running on
-        :param calculation_efficiency:
+        :param name: name of the job
+        :param drone: drone  the job is running on
+        :param calculation_efficiency: efficiency of the job's calculations,
+        can be < 1.0 to account for programmatical insufficiencie
         """
         self.resources = resources
+        """dict containing resources requested by the job"""
         self.used_resources = used_resources
+        """dict containing resources actually used by the job"""
+
         for key in used_resources:
             if key not in resources:
                 logging.getLogger("implementation").info(
@@ -123,29 +127,47 @@ class Job(object):
                 )
                 self.resources[key] = self.used_resources[key]
         self.walltime: int = used_resources.pop("walltime")
+        """the job's runtime, in reality as well as in the simulation"""
         self.requested_walltime: Optional[int] = resources.pop("walltime", None)
+        """estimate of the job's walltime"""
         self.queue_date = queue_date
+        """ point in time when the job was submitted to the simulated job queue"""
         assert in_queue_since >= 0, "Queue time cannot be negative"
         self.in_queue_since = in_queue_since
+        """Time when job was inserted into the queue of the simulation scheduler"""
         self.in_queue_until: Optional[float] = None
+        """point in time when the job left the job queue"""
         self.drone = drone
+        """drone the job is executed on"""
         self._name = name
+        """identifier of the job"""
         self._success: Optional[bool] = None
+        """flag indicating whether the job was completed successfully"""
         self.calculation_efficiency = calculation_efficiency
-
+        """efficiency of the job's calculations, can be < 1.0 to account for 
+        programmatical insufficiencies"""
         # caching-related
         self.requested_inputfiles = resources.pop("inputfiles", None)
+        """dict of input files requested by the job and respective file sizes"""
         self.used_inputfiles = used_resources.pop("inputfiles", None)
+        """dict of input files read by the job and respective amount of read data"""
         self._read_from_cache = 0
+        """flag indicating whether the job read from the cache"""
         self._cached_data = 0
+        """expectation value for the amount of data that was read from a cache by 
+        this job"""
         self._original_walltime = self.walltime
+        """stores the jobs original walltime as a reference"""
         self._calculation_time = 0
+        """time the job takes only to perform all calculations"""
         self._transfer_time = 0
+        """time the job takes only to transfer all input data"""
 
         # TODO: this try-except is a fix for a unit test, check whether this makes
         #  sense in all use cases
         try:
             self.cputime = self.used_resources["cores"] * self.walltime
+            """walltime of the job if the CPU efficienca was always optimal"""
         except KeyError:
             self.cputime = None
 
@@ -153,6 +175,7 @@ class Job(object):
             self._total_input_data = sum(
                 [fileinfo["usedsize"] for fileinfo in self.used_inputfiles.values()]
             )
+            """total data volume of the job's input diles"""
         except AttributeError:
             self._total_input_data = 0
 
@@ -167,6 +190,7 @@ class Job(object):
             )
         else:
             self.expectation_cached_data = 0
+            """amount of data that was read from the cache"""
 
         if self._total_input_data:
             self.cache_probability = sum(
@@ -179,6 +203,8 @@ class Job(object):
             self.cache_probability = 0
 
         self.failed_matches = 0
+        """number of times the job entered the matchmaking process but was not 
+        scheduled to a drone"""
 
     @property
     def name(self) -> str:
@@ -210,9 +236,9 @@ class Job(object):
         divided by a configurable `calculation_efficiency` that can be set != 1,  e.g. to
         account for programmatical inefficiencies.
 
-        Else, the calculation time remains equal to the job's orginal `walltime`.
+        Else, the calculation time remains equal to the job's orginal`walltime`.
+
         :param calculation_efficiency:
-        :return:
         """
         result = self.walltime
         try:
@@ -250,8 +276,8 @@ class Job(object):
         `_transfer_inputfiles`.
         The job will be executed successfully unless the selected drone does not
         provide enough resources, is unavailable or an exception occurs.
+
         :param drone: the drone object the job was allocated to and is executed in
-        :return:
         """
         assert drone, "Jobs cannot run without a drone being assigned"
         self.drone = drone
@@ -290,10 +316,9 @@ class Job(object):
 async def job_to_queue_scheduler(job_generator, job_queue):
     """
     Handles reading the simulation's job input and puts the job's into the job queue
+
     :param job_generator: reader object that yields jobs from input
     :param job_queue: queue the jobs are added to
-    :return:
-
     """
     base_date = None
     for job in job_generator:

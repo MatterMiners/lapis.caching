@@ -1,7 +1,7 @@
 from typing import Optional
 
 from usim import time, Resources, Scope
-from monitoredpipe import MonitoredPipe
+from lapis.monitoredpipe import MonitoredPipe
 from lapis.monitor import sampling_required
 
 from lapis.files import StoredFile, RequestedFile, RequestedFile_HitrateBased
@@ -24,6 +24,7 @@ class RemoteStorage(Storage):
         """
         Initialization of the remote storages pipe, representing the network
         connection to remote storage with a limited bandwidth.
+
         :param pipe:
         """
         self.connection = pipe
@@ -44,6 +45,7 @@ class RemoteStorage(Storage):
     async def transfer(self, file: RequestedFile, **kwargs):
         """
         Simulates the transfer of a requested file via the remote storage's pipe.
+
         :param file: representation of the requested file
         """
         await self.connection.transfer(total=file.filesize)
@@ -105,7 +107,8 @@ class StorageElement(Storage):
         Intialization of a storage element object.
 
         :param name: identification of the storage
-        :param sitename:
+        :param sitename: identifier, drones with the same sitename can access this
+        storage
         :param size: total size of the storage in bytes
         :param throughput_limit: maximal bandwidth of the network connection to this
         storage
@@ -116,18 +119,30 @@ class StorageElement(Storage):
         information is updated
         """
         self.name = name
+        """identification of the storage"""
         self.sitename = sitename
+        """identifier, drones with the same sitename can access this 
+        storage"""
         self.deletion_duration = deletion_duration
+        """amount of time passing while a file is deleted from the storage"""
         self.update_duration = update_duration
+        """amount of time passing while a file's information is updated"""
         self._size = size
+        """size of the storage"""
         self.files = files
+        """dict of files currently in the storage"""
         self._usedstorage = Resources(
             size=sum(file.storedsize for file in files.values())
         )
+        """amount of storage space that is currently in use"""
         self.connection = MonitoredPipe(throughput_limit)
+        """Pipe representing the network connection to this storage
+        **Namespace problem between connection module and this pipe called 
+        connection**"""
         self.connection.storage = repr(self)
 
         self.remote_storage = None
+        """remote storage that provides files that are not stored in the cache"""
 
     @property
     def size(self):
@@ -145,9 +160,9 @@ class StorageElement(Storage):
         """
         Deletes file from storage object. The time this operation takes is defined
         by the storages deletion_duration attribute.
+
         :param file: representation of the file that is removed from the storage
         :param job_repr: Needed for debug output, will be replaced
-        :return:
         """
         await (time + self.deletion_duration)
         await self._usedstorage.decrease(size=file.filesize)
@@ -160,9 +175,9 @@ class StorageElement(Storage):
         to the storage when they are also transferred through the Connections remote
         connection. If this simulator is extended to include any kind of
         direct file placement this has to be adapted.
+
         :param file: representation of the file that is added to the storage
         :param job_repr: Needed for debug output, will be replaced
-        :return:
         """
 
         file = file.convert_to_stored_file_object(time.now)
@@ -173,6 +188,7 @@ class StorageElement(Storage):
     async def _update(self, stored_file: StoredFile, job_repr):
         """
         Updates a stored files information upon access.
+
         :param stored_file:
         :param job_repr: Needed for debug output, will be replaced
         :return:
@@ -186,9 +202,9 @@ class StorageElement(Storage):
         Manages file transfer via the storage elements connection and updates file
         information. If the file should have been deleted since it was originally
         looked up the resulting error is not raised.
+
         :param file:
         :param job_repr:  Needed for debug output, will be replaced
-        :return:
         """
         await self.connection.transfer(file.filesize)
         try:
@@ -201,6 +217,7 @@ class StorageElement(Storage):
         """
         Searches storage object for the requested_file and sends result (amount of
         cached data, storage object) to the queue.
+
         :param requested_file:
         :param job_repr: Needed for debug output, will be replaced
         :return: (amount of cached data, storage object)
@@ -246,6 +263,7 @@ class HitrateStorage(StorageElement):
             files=files,
         )
         self._hitrate = hitrate
+        """global cache hitrate of this cache"""
 
     @property
     def available(self):
@@ -261,9 +279,9 @@ class HitrateStorage(StorageElement):
         of the file are found on and transferred from this storage.
         1 - `_hitrate` percent of the file are transferred from the remote storage
         associated to the hitrate storage.
+
         :param file:
         :param job_repr:
-        :return:
         """
         async with Scope() as scope:
             logging.getLogger("implementation").warning(
@@ -346,9 +364,10 @@ class FileBasedHitrateStorage(StorageElement):
         """
         Returns the expectation value for the amount of data of this file that are
         cached.
+
         :param requested_file:
         :param job_repr:
-        :return:
+        :return: result of the lookup
         """
         return LookUpInformation(
             requested_file.filesize * requested_file.cachehitrate, self

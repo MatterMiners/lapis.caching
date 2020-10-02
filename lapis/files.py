@@ -28,6 +28,7 @@ class StoredFile(object):
     ):
         """
         Intialization of a stored file
+
         :param filename: name of the file
         :param filesize: size of the file
         :param storedsize: size of the file that is actually stored, necessary if

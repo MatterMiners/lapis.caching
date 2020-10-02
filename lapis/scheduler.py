@@ -54,6 +54,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
     def __init__(self, classad: ClassAd, wrapped: DJ):
         """
         Initialization for wrapped ClassAd
+
         :param classad: the wrapped objects ClassAd description
         :param wrapped: wrapped object, either job or drone
         """
@@ -66,6 +67,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
         """
         Only relevant for wrapped drones to determine whether there are jobs running
         on them. If this is the case the amount of cores in usage is >= 1.
+
         :return: true if no CPU cores are in use, false if this is not the case
         """
         try:
@@ -76,6 +78,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
     def __getitem__(self, item):
         """
         This method is used when evaluating classad expressions.
+
         :param item: name of a quantity in the classad expression
         :return: current value of this item
         """
@@ -83,6 +86,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
             """
             Extracts the wrapped object's current quantity of a certain resource (
             cores, memory, disk)
+
             :param name: name of the reosurce that is to be accessed
             :param requested: false if name is a resource of the drone, true if name
             is a resource requested by a job
@@ -239,7 +243,6 @@ class CondorJobScheduler(JobScheduler):
     exactly fits a slot or if it does fit into it several times. The cost for
     putting a job at a given slot is given by the amount of resources that
     might remain unallocated.
-    :return:
     """
 
     def __init__(self, job_queue):
@@ -452,7 +455,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
 
     def __init__(self, quantization: Dict[str, HTCInt], ranking: Expression):
         """
-        :param quantization:
+        :param quantization: factors to convert resources into HTCondor scalings
         :param ranking: prejobrank expression
         """
         self._quantization = quantization
@@ -464,6 +467,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
         """
         Checks whether all drones in the RankedCluster are empty and currently not
         running any jobs.
+
         :return:
         """
         for drones in self._clusters.values():
@@ -486,6 +490,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
         sorted in into the clusters accordingly. If there are already items with the
         same key, the new item is added to the existing cluster. If not,
         a new cluster is created.
+
         :param item:
         :return:
         """
@@ -501,6 +506,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
     def remove(self, item: WrappedClassAd[DJ]):
         """
         Removes the item.
+
         :param item:
         :return:
         """
@@ -517,6 +523,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
         structure is (prejobrank value, (available cpus, available memory, available
         disk space)). The clustering key is negative as the SortedDict sorts its entries
         from low keys to high keys.
+
         :param item: drone for which the clustering key is calculated.
         :return: (prejobrank value, (available cpus, available memory, available
         disk space))
@@ -547,6 +554,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
         """
         Sort clusters by the ranking key and then by the amount of available
         resources into nested lists of sets.
+
         :return:
         """
         group = []
@@ -633,6 +641,7 @@ class RankedNonClusters(RankedClusters[DJ]):
         Sorts cluster by the ranking key. As there is no autoclustering, every drone
         is in a dedicated set and drones of the same ranking are combined into a list.
         These lists are then sorted by increasing ranking.
+
         :return: iterator of the lists containing drones with identical key
         """
         for _ranked_key, drones in self._clusters.items():
@@ -657,7 +666,6 @@ class CondorClassadJobScheduler(JobScheduler):
     exactly fits a slot or if it does fit into it several times. The cost for
     putting a job at a given slot is given by the amount of resources that
     might remain unallocated.
-    :return:
     """
 
     def __init__(
@@ -671,6 +679,7 @@ class CondorClassadJobScheduler(JobScheduler):
     ):
         """
         Initializes the CondorClassadJobScheduler
+
         :param job_queue: queue of jobs that are scheduled in the following simulation
         :param machine_ad: ClassAd that is used with every drone
         :param job_ad: ClassAd that is used with every job
@@ -697,6 +706,7 @@ class CondorClassadJobScheduler(JobScheduler):
         """
         Takes an iterator over the WrappedClassAd objects of drones known to the
         scheduler, extracts the drones and returns an iterator over the drone objects.
+
         :return:
         """
         for cluster in self._drones.clusters():
@@ -709,6 +719,7 @@ class CondorClassadJobScheduler(JobScheduler):
         adds the resulting WrappedClassAd object to the drones known to the scheduler as
         well as the dictionary containing all WrappedClassAd objects the scheduler
         works with.
+
         :param drone:
         """
         wrapped_drone = WrappedClassAd(classad=self._machine_classad, wrapped=drone)
@@ -718,6 +729,7 @@ class CondorClassadJobScheduler(JobScheduler):
     def unregister_drone(self, drone: Drone):
         """
         Remove a drone's representation from the scheduler's scope.
+
         :param drone:
         :return:
         """
@@ -727,6 +739,7 @@ class CondorClassadJobScheduler(JobScheduler):
     def update_drone(self, drone: Drone):
         """
         Update a drone's representation in the scheduler scope.
+
         :param drone:
         :return:
         """
@@ -737,6 +750,7 @@ class CondorClassadJobScheduler(JobScheduler):
         """
         Runs the scheduler's functionality. One executed, the scheduler starts up and
         begins to add the jobs that are
+
         :return:
         """
         async with Scope() as scope:
@@ -756,6 +770,7 @@ class CondorClassadJobScheduler(JobScheduler):
     ):
         """
         Tries to find a match for the transferred job among the available drones.
+
         :param job: job to match
         :param pre_job_clusters: list of clusters of wrapped drones that are
         presorted by a clustering mechanism of RankedAutoClusters/RankedNonClusters
@@ -787,6 +802,7 @@ class CondorClassadJobScheduler(JobScheduler):
             Reimplementation of the classad packages evaluate function. Having it
             here enables developers to inspect the ClassAd evaluation process more
             closely and to add debug output if necessary.
+
             :param expr:
             :param my:
             :param target:
@@ -853,7 +869,7 @@ class CondorClassadJobScheduler(JobScheduler):
         job queue as the index of a job in the job queue changes once a job with a
         lower index is removed from the queue.
         4. The matched jobs' execution is triggered.
-        :return:
+
         """
         # Pre Job Rank is the same for all jobs
         # Use a copy to allow temporary "remainder after match" estimates
@@ -909,9 +925,9 @@ class CondorClassadJobScheduler(JobScheduler):
         """
         Schedules a job on a drone by extracting both objects from the
         respective WrappedClassAd and using the drone's scheduling functionality
+
         :param job:
         :param drone:
-        :return:
         """
         wrapped_job = job._wrapped
         wrapped_drone = drone._wrapped
@@ -922,7 +938,6 @@ class CondorClassadJobScheduler(JobScheduler):
         Combines jobs that are imported from the simulation's job config with a job
         ClassAd and adds the resulting WrappedClassAd objects to the scheduler's job
         queue.
-        :return:
         """
         async for job in self._stream_queue:
             wrapped_job = WrappedClassAd(classad=self._job_classad, wrapped=job)
@@ -942,7 +957,6 @@ class CondorClassadJobScheduler(JobScheduler):
         instance is reduced. If the job is not finished successfully,
         it is resubmitted to the scheduler's job queue.
         :param job:
-        :return:
         """
         if job.successful:
             await self._processing.decrease(jobs=1)

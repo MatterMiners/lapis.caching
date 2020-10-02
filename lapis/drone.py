@@ -32,6 +32,7 @@ class Drone(interfaces.Pool):
     ):
         """
         Drone initialization
+
         :param scheduler: scheduler that assigns jobs to the drone
         :param pool_resources: dict of the drone's resources
         :param scheduling_duration: amount of time that passes between the drone's
@@ -43,12 +44,21 @@ class Drone(interfaces.Pool):
         """
         super(Drone, self).__init__()
         self.scheduler = scheduler
+        """scheduler that assigns jobs to the drone"""
         self.connection = connection
+        """connection object that holds remote connection and handles file transfers"""
         self.sitename = sitename
+        """identifies the site the drone belongs to, used to determine which caches a 
+        drone can use """
         self.pool_resources = pool_resources
+        """dict stating the drone's resources"""
         self.resources = Capacities(**pool_resources)
+        """available resources, based on the amount of resources requested by 
+        jobs running on the drone """
         # shadowing requested resources to determine jobs to be killed
         self.used_resources = Capacities(**pool_resources)
+        """available resources, based on the amount of resources actually used by 
+        jobs running on the drone"""
 
         if ignore_resources:
             self._valid_resource_keys = [
@@ -59,20 +69,30 @@ class Drone(interfaces.Pool):
         else:
             self._valid_resource_keys = self.pool_resources.keys()
         self.scheduling_duration = scheduling_duration
+        """amount of time that passes between the drone's
+        start up and it's registration at the scheduler"""
         self._supply = 0
         self.jobs = 0
+        """number of jobs running on the drone"""
         self._allocation = None
         self._utilisation = None
         self._job_queue = Queue()
         self._empty = empty
+        """method that is used to determine whether a drone is empty"""
 
         # caching-related
         self.jobs_with_cached_data = 0
+        """amount of jobs that currently run on the drone and that could read from 
+        the cache"""
         self.cached_data = 0
+        """used during scheduling, calculated for each job, is assigned the 
+        expectation value for the amount of cached data that is available to the 
+        drone"""
 
     def empty(self):
         """
         Checks whether there are any jobs running on this drone
+
         :return: true if no jobs are running on this drone, false else
         """
         return self._empty(self)
@@ -82,7 +102,8 @@ class Drone(interfaces.Pool):
         """
         Returns the amount of resources of the drone that were available if all jobs
         used exactly the amount of resources they requested
-        :return:
+
+        :return: dictionary of theoretically available resources
         """
         return dict(self.resources.levels)
 
@@ -91,7 +112,8 @@ class Drone(interfaces.Pool):
         """
         Returns the amount of resources of the drone that are available based on the
         amount of resources the running jobs actually use.
-        :return:
+
+        :return: dictionary of available resources
         """
         return dict(self.used_resources.levels)
 
@@ -183,6 +205,7 @@ class Drone(interfaces.Pool):
     async def schedule_job(self, job: Job, kill: bool = False):
         """
         A job is scheduled to a drone by putting it in the drone's job queue.
+
         :param job: job that was matched to the drone
         :param kill: flag, if true jobs can be killed if they use more resources than they requested
         """
@@ -198,6 +221,7 @@ class Drone(interfaces.Pool):
         requested.
         Then the end of the job's execution is awaited and the drones status
         known to the scheduler is changed.
+
         :param job: the job to start
         :param kill: if True, a job is killed when used resources exceed
                      requested resources
@@ -271,6 +295,7 @@ class Drone(interfaces.Pool):
         *Pay attention to the fact that the current implementation only works for
         hitrate based caching and that while KeyErrors should not occur due to the
         way the method is called, KeyErrors are not handled here.*
+
         :param job:
         """
         cached_data = 0
