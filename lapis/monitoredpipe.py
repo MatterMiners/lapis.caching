@@ -14,12 +14,15 @@ class MonitoredPipeInfo(NamedTuple):
 
 
 class MonitoredPipe(Pipe):
+    """Implementation of the usim pipe object that can be monitored"""
     def __init__(self, throughput: float):
         super().__init__(throughput)
         self._monitor = Notification()
         self._monitor_buffers: Dict[Any, Deque[MonitoredPipeInfo]] = {}
         self.storage = None
+        """storage object the pipe simulates the network connection for, for monitoring purposes"""
         self.transferred_data = 0
+        """total amount of data transferred by the pipe, for monitoring purposes"""
 
     async def load(self) -> AsyncIterable[MonitoredPipeInfo]:
         """
@@ -48,6 +51,7 @@ class MonitoredPipe(Pipe):
             del self._monitor_buffers[sentinel]
 
     def _throttle_subscribers(self):
+        """Scales down the available bandwidth for all users"""
         # print(time.now, "awakening monitors, throttling subscribers")
 
         self._monitor.__awake_all__()

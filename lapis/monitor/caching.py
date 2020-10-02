@@ -11,7 +11,7 @@ from lapis.monitor import (
     SIMULATION_START,
 )
 from lapis.storageelement import StorageElement
-from monitoredpipe import MonitoredPipe, MonitoredPipeInfo
+from lapis.monitoredpipe import MonitoredPipe, MonitoredPipeInfo
 
 import time as pytime
 from usim import time
