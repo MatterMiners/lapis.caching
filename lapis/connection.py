@@ -40,7 +40,7 @@ class Connection(object):
         "_filebased_caching",
     )
 
-    def __init__(self, throughput=1000 * 1000 * 1000, filebased_caching=True):
+    def __init__(self, throughput, filebased_caching=True):
         """
         Intialization of the connection object
         :param throughput: throughput of the connection's remote storage
@@ -48,7 +48,7 @@ class Connection(object):
         """
         self.storages = dict()
         """dictionary containing storage objects known to the connection module"""
-        self.remote_connection = RemoteStorage(MonitoredPipe(throughput=throughput))
+        self.remote_connection = RemoteStorage(throughput=throughput)
         """pipe object representing the connection to a remote storage"""
         self.caching_algorithm = CacheAlgorithm(
             caching_strategy=lambda file, storage: check_size(file, storage)

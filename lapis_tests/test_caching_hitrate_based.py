@@ -14,6 +14,7 @@ from lapis.pool import StaticPool
 from lapis.pool_io.htcondor import htcondor_pool_reader
 from lapis.scheduler import CondorJobScheduler, CondorClassadJobScheduler
 
+conversion_GB_to_B = 1000 * 1000 * 1000
 
 class TestHitrateCaching(object):
     def test_hitratestorage(self):
@@ -53,8 +54,11 @@ class TestHitrateCaching(object):
     async def test_stream_file(self):
         throughput = 10
         size = 1000
-        requested_file = RequestedFile(filename="testfile", filesize=100)
+        requested_file = RequestedFile(filename="testfile",
+                                       filesize=100 * conversion_GB_to_B)
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
+        # does not transfer from cache but from remote storage as there are no files
+        # in the HitrateStorage
         connection = Connection(throughput=throughput)
         connection.add_storage_element(hitratestorage)
         assert 0 == time.now
@@ -67,8 +71,11 @@ class TestHitrateCaching(object):
         size = 1000
         drone = DummyDrone(throughput)
         job = DummyJob(True)
-        requested_files = dict(test=dict(usedsize=100, hitrates={drone.sitename: 1.0}))
+        requested_files = dict(test=dict(usedsize=100 * conversion_GB_to_B,
+                                         hitrates={drone.sitename: 1.0}))
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
+        # does not transfer from cache but from remote storage as there are no files
+        # in the HitrateStorage
         drone.connection.add_storage_element(hitratestorage)
         stream_time = await drone.connection.transfer_files(
             drone=drone, requested_files=requested_files, job_repr=job
@@ -83,10 +90,14 @@ class TestHitrateCaching(object):
         size = 1000
         drone = DummyDrone(throughput)
         job = DummyJob(True)
-        requested_files = dict(test1=dict(usedsize=100, hitrates={drone.sitename: 1.0}),
-                               test2=dict(usedsize=200, hitrates={drone.sitename: 1.0}))
+        requested_files = dict(test1=dict(usedsize=100 * conversion_GB_to_B,
+                                          hitrates={drone.sitename: 1.0}),
+                               test2=dict(usedsize=200 * conversion_GB_to_B, hitrates={
+                                   drone.sitename: 1.0}))
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         drone.connection.add_storage_element(hitratestorage)
+        # does not transfer from cache but from remote storage as there are no files
+        # in the HitrateStorage
         stream_time = await drone.connection.transfer_files(
             drone=drone, requested_files=requested_files, job_repr=job
         )
@@ -153,9 +164,7 @@ class TestHitrateCaching(object):
                 job_reader=htcondor_job_reader
             )
             simulator.create_scheduler(scheduler_type=CondorClassadJobScheduler)
-            simulator.create_connection_module(remote_throughput=0.1 * 1000 * 1000 *
-                                                                 1000,
-                                               filebased_caching=False)
+            simulator.create_connection_module(remote_throughput=0.1, filebased_caching=False)
             simulator.create_storage(
                 storage_input=storage_input,
                 storage_content_input=storage_content_input,

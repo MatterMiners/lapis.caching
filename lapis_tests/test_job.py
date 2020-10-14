@@ -49,7 +49,7 @@ class TestJob(object):
             scheduler=scheduler,
             pool_resources={"cores": 1, "memory": 1},
             scheduling_duration=0,
-            connection=Connection(),
+            connection=Connection(throughput=1),
         )
         async with Scope() as scope:
             scope.do(drone.run(), volatile=True)
