@@ -20,15 +20,16 @@ class RemoteStorage(Storage):
     connections.
     """
     # TODO:: ensure that there can be multiple remote storages in the simulation
-    def __init__(self, pipe: MonitoredPipe):
+    def __init__(self, throughput: float):
         """
         Initialization of the remote storages pipe, representing the network
         connection to remote storage with a limited bandwidth.
 
         :param pipe:
         """
-        self.connection = pipe
-        pipe.storage = repr(self)
+        conversion_GB_to_B = 1000 * 1000 * 1000
+        self.connection = MonitoredPipe(throughput=throughput * conversion_GB_to_B)
+        self.connection.storage = repr(self)
 
     @property
     def size(self):
