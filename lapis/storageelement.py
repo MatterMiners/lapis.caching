@@ -341,7 +341,7 @@ class FileBasedHitrateStorage(StorageElement):
             sitename=sitename,
             size=size,
             throughput_limit=throughput_limit,
-            files=files,
+            files={},
         )
 
     @property
