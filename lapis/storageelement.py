@@ -69,7 +69,7 @@ class RemoteStorage(Storage):
     def find(self, file: RequestedFile, **kwargs) -> LookUpInformation:
         """
         All files are contained in remote storage. Therefore no functionality
-        to determine whether the storage cotains a certain file is provided.
+        to determine whether the storage contains a certain file is provided.
         """
         raise NotImplementedError
 

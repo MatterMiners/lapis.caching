@@ -31,7 +31,9 @@ pool_import_mapper = {"htcondor": htcondor_pool_reader}
 
 storage_import_mapper = {"standard": storage_reader}
 
-"""Simulation CLI, pay attention to the fact that the random seed is currently set to a fixed value"""
+"""Simulation CLI, pay attention to the fact that the random seed is currently set to a 
+fixed value"""
+
 
 @click.group()
 @click.option("--seed", type=int, default=1234)

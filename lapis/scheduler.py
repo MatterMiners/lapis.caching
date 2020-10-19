@@ -87,7 +87,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
             Extracts the wrapped object's current quantity of a certain resource (
             cores, memory, disk)
 
-            :param name: name of the reosurce that is to be accessed
+            :param name: name of the resource that is to be accessed
             :param requested: false if name is a resource of the drone, true if name
             is a resource requested by a job
             :return: value of respective resource
@@ -455,7 +455,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
 
     def __init__(self, quantization: Dict[str, HTCInt], ranking: Expression):
         """
-        :param quantization: factors to convert resources into HTCondor scalings
+        :param quantization: factors to convert resources into HTCondor scaling
         :param ranking: prejobrank expression
         """
         self._quantization = quantization

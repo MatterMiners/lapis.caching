@@ -42,7 +42,7 @@ class Connection(object):
 
     def __init__(self, throughput, filebased_caching=True):
         """
-        Intialization of the connection object
+        Initialization of the connection object
         :param throughput: throughput of the connection's remote storage
         :param filebased_caching:
         """
@@ -57,10 +57,10 @@ class Connection(object):
                 file, storage
             ),
         )
-        """cache behavior filebased caching, contains both caching and deletion 
+        """cache behavior file based caching, contains both caching and deletion 
         strategy"""
         self._filebased_caching = filebased_caching
-        """flag, true if filebased caching is current caching mode"""
+        """flag, true if file based caching is current caching mode"""
 
     async def run_pipemonitoring(self):
         """
@@ -79,7 +79,7 @@ class Connection(object):
 
     def add_storage_element(self, storage_element: StorageElement):
         """
-        Register storage element in Connetion module,  clustering storage elements by
+        Register storage element in Connection module,  clustering storage elements by
         sitename
 
         :param storage_element:
@@ -108,7 +108,7 @@ class Connection(object):
         :param requested_file:
         :param dronesite:
         :param job_repr:
-        :return:
+        :return: pipe that will be used for file transfer
         """
         provided_storages = self.storages.get(dronesite, None)
         if provided_storages is not None:
@@ -129,14 +129,13 @@ class Connection(object):
     ):
         """
         Determines which storage object is used to provide the requested file and
-        startes the files transfer. For files transfered via remote connection a
+        starts the files transfer. For files transferred via remote connection a
         potential cache decides whether to cache the file and handles the caching
         process.
 
         :param requested_file:
         :param dronesite:
         :param job_repr:
-        :return:
         """
         used_connection = await self._determine_inputfile_source(
             requested_file, dronesite, job_repr
@@ -172,7 +171,7 @@ class Connection(object):
         :param drone:
         :param requested_files:
         :param job_repr:
-        :return:
+        :return: time that passed while file was transferred
         """
 
         start_time = time.now

@@ -28,7 +28,7 @@ class Job(object):
     input data. In this case the job's runtime is recalculated if the job processes
     input data and is executed on resources with access to caches. In this case data
     transfer and processing are assumed to be done in parallel. This is a valid
-    assumption if the input data are divided into blocks, transfered
+    assumption if the input data are divided into blocks, transferred
     throughout the job's runtime and if already transferred data blocks are processed
     while other blocks are fetched. If the job's overall runtime is long and if the
     data set was transferred in a large number of blocks, the job's runtime (walltime)
@@ -111,7 +111,7 @@ class Job(object):
         :param name: name of the job
         :param drone: drone  the job is running on
         :param calculation_efficiency: efficiency of the job's calculations,
-        can be < 1.0 to account for programmatical insufficiencie
+        can be < 1.0 to account for programmatical insufficiencies
         """
         self.resources = resources
         """dict containing resources requested by the job"""
@@ -167,7 +167,7 @@ class Job(object):
         #  sense in all use cases
         try:
             self.cputime = self.used_resources["cores"] * self.walltime
-            """walltime of the job if the CPU efficienca was always optimal"""
+            """walltime of the job if the CPU efficiency = 1.0"""
         except KeyError:
             self.cputime = None
 
@@ -175,11 +175,11 @@ class Job(object):
             self._total_input_data = sum(
                 [fileinfo["usedsize"] for fileinfo in self.used_inputfiles.values()]
             )
-            """total data volume of the job's input diles"""
+            """total data volume of the job's input files"""
         except AttributeError:
             self._total_input_data = 0
 
-        # TODO: see unit test test_read_with_inputfiles -> decide whether making
+        # TODO: see unit test test_read_with_inputfiles ->  making
         #  information about hitrates obilgatory is actually necessary
         if self._total_input_data:
             self.expectation_cached_data = sum(
@@ -234,11 +234,9 @@ class Job(object):
         If a job contains input files and the drone the job runs on has a defined remote
         connection (throughput < Inf) the calculation time is given by job's CPU time
         divided by a configurable `calculation_efficiency` that can be set != 1,  e.g. to
-        account for programmatical inefficiencies.
+        account for programmatic inefficiencies.
 
-        Else, the calculation time remains equal to the job's orginal`walltime`.
-
-        :param calculation_efficiency:
+        Else, the calculation time remains equal to the job's original `walltime`.
         """
         result = self.walltime
         try:

@@ -20,7 +20,8 @@ class MonitoredPipe(Pipe):
         self._monitor = Notification()
         self._monitor_buffers: Dict[Any, Deque[MonitoredPipeInfo]] = {}
         self.storage = None
-        """storage object the pipe simulates the network connection for, for monitoring purposes"""
+        """storage object the pipe simulates the network connection for, for monitoring 
+        purposes"""
         self.transferred_data = 0
         """total amount of data transferred by the pipe, for monitoring purposes"""
 

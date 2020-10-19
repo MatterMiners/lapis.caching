@@ -27,7 +27,7 @@ class StoredFile(object):
         **filespecs,
     ):
         """
-        Intialization of a stored file
+        Initialization of a stored file
 
         :param filename: name of the file
         :param filesize: size of the file

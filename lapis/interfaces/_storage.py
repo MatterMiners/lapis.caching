@@ -55,7 +55,7 @@ class Storage(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def remove(self, file: StoredFile, job_repr):
         """
-        Remove all file information and used filesize from the storage.
+        Remove all file information and used file size from the storage.
         """
         raise NotImplementedError
 
