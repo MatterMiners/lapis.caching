@@ -1,6 +1,6 @@
 import setuptools
 
-with open("README.md", "r") as readme:
+with open("README.rst", "r") as readme:
     long_description = readme.read()
 
 setuptools.setup(
@@ -10,7 +10,6 @@ setuptools.setup(
     author_email="mainekuehn@gmail.com",
     description="LAPIS extension to simulate caching",
     long_description=long_description,
-    long_description_content_type="text/markdown",
     url="https://github.com/MatterMiners/lapis.caching",
     keywords="caching simulation cobald tardis opportunistic scheduling scheduler",
     # Even though `lapis` is not a namespace package, declaring `lapis.caching`
