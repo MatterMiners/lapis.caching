@@ -11,15 +11,15 @@ setuptools.setup(
     description="LAPIS extension to simulate caching",
     long_description=long_description,
     url="https://github.com/MatterMiners/lapis.caching",
-    keywords="caching simulation cobald tardis opportunistic scheduling scheduler",
+    keywords="caching simulation opportunistic scheduling scheduler",
     # Even though `lapis` is not a namespace package, declaring `lapis.caching`
     # as one allows to drop `.caching` into `.lapis`. The result works as one.
-    packages=setuptools.find_namespace_packages(include=['lapis.*']),
+    packages=setuptools.find_namespace_packages(include=["lapis.*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Development Status :: 2 - Pre-Alpha",
     ],
-    install_requires=['lapis-sim'],
-    python_requires='>=3.6',
+    install_requires=["lapis-sim"],
+    python_requires=">=3.6",
 )
