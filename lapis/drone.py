@@ -40,8 +40,10 @@ class Drone(interfaces.Pool):
         start up and it's registration at the scheduler
         :param ignore_resources: dict of the resource keys that are ignored, e.g. "disk"
         :param sitename: identifier, used to determine which caches a drone can use
-        :param connection: connection object that holds remote connection and handles file transfers
-        :param empty: callable that determines whether the drone is currently running any jobs
+        :param connection: connection object that holds remote connection and handles
+            file transfers
+        :param empty: callable that determines whether the drone is currently running
+            any jobs
         """
         super(Drone, self).__init__()
         self.scheduler = scheduler
@@ -208,7 +210,8 @@ class Drone(interfaces.Pool):
         A job is scheduled to a drone by putting it in the drone's job queue.
 
         :param job: job that was matched to the drone
-        :param kill: flag, if true jobs can be killed if they use more resources than they requested
+        :param kill: flag, if true jobs can be killed if they use more resources
+            than they requested
         """
         await self._job_queue.put((job, kill))
 

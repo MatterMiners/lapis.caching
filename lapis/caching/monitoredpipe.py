@@ -35,7 +35,8 @@ class MonitoredPipe(Pipe):
                     print(
                         f'{time.now:6.0f}:'
                         f'{event.requested_throughput} \t'
-                        f'[{event.requested_throughput / event.available_throughput * 100:03.0f}%]'
+                        f'[{event.requested_throughput / event.available_throughput'
+                        f'* 100:03.0f}%]'
                     )
         """
         await instant
@@ -84,10 +85,12 @@ if __name__ == "__main__":
 
     async def report_load(pipe: MonitoredPipe):
         async for event in pipe.load():
+            requested_tp = event.requested_throughput
+            available_tp = event.available_throughput
             print(
                 f"{time.now:6.0f}:"
-                f"{event.requested_throughput} \t"
-                f"[{event.requested_throughput / event.available_throughput * 100:03.0f}%]"
+                f"{requested_tp} \t"
+                f"[{requested_tp / available_tp * 100:03.0f}%]"
             )
 
     async def perform_load(pipe: MonitoredPipe, delay, amount):

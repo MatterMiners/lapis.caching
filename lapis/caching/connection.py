@@ -74,7 +74,7 @@ class Connection(object):
 
         async with Scope() as scope:
             scope.do(report_load_to_monitoring(self.remote_connection.connection))
-            for storage_key, storage_list in self.storages.items():
+            for _, storage_list in self.storages.items():
                 for storage in storage_list:
                     scope.do(report_load_to_monitoring(storage.connection))
 

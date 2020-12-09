@@ -575,7 +575,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
             yield group
 
     def lookup(self, job: Job):
-        for ranked_key, drones in self._clusters.items():
+        for _, drones in self._clusters.items():
             for drone in drones:
                 drone._wrapped.look_up_cached_data(job)
 
@@ -651,7 +651,7 @@ class RankedNonClusters(RankedClusters[DJ]):
             yield [{item} for item in drones]
 
     def lookup(self, job: Job):
-        for ranked_key, drones in self._clusters.items():
+        for _, drones in self._clusters.items():
             for drone in drones:
                 drone._wrapped.look_up_cached_data(job)
 
@@ -864,11 +864,11 @@ class CondorClassadJobScheduler(JobScheduler):
         the jobs allocate resources on the original drones before being processed but
         not during scheduling.
         2. The job in the job queue are matched to (the copied)resources iteratively.
-        The actual matching is performed by the `_match_job` method that returns the most
-        suitable drone unless no drone is compatible with the job's requirements.
-        If a match was found, the resources requested by the job are allocated on the matched drone.
-        If no resources remain unallocated after the last job's allocation,
-        the matching process is ended for this scheduler interval.
+        The actual matching is performed by the `_match_job` method that returns the
+        most suitable drone unless no drone is compatible with the job's requirements.
+        If a match was found, the resources requested by the job are allocated on the
+        matched drone. If no resources remain unallocated after the last job's
+        allocation, the matching process is ended for this scheduler interval.
         3. After the job matching is finished, the matched jobs are removed from the
         job queue as the index of a job in the job queue changes once a job with a
         lower index is removed from the queue.

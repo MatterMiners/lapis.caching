@@ -244,7 +244,8 @@ class HitrateStorage(StorageElement):
     Simplified storage object, used to simulate a simplified form of hitrate based
     caching.  No explicit list of stored files is kept. Instead, it is assumed that a
     fraction `_hitrate` of all files is stored. Every time a file is requested from
-    this kind of storage, `_hitrate` percent of the file are found on and transferred from this storage.
+    this kind of storage, `_hitrate` percent of the file are found on and transferred
+    from this storage.
     1 - `_hitrate` percent of the file are transferred from the remote storage
     associated to the hitrate storage.
     """
@@ -328,7 +329,8 @@ class FileBasedHitrateStorage(StorageElement):
     the connection module's file transfer functionality.
     The definition of the storage objects size is currently irrelevant.
 
-    #TODO: this storage object has become very intermingled with the connection module and should be tidied up and restructured!
+    # TODO: this storage object has become very intermingled with the connection
+    module and should be tidied up and restructured!
     """
 
     def __init__(

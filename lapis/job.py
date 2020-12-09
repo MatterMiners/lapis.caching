@@ -231,10 +231,10 @@ class Job(object):
         Determines a jobs calculation time based on the jobs CPU time and a
         calculation efficiency representing inefficient programming.
 
-        If a job contains input files and the drone the job runs on has a defined remote
-        connection (throughput < Inf) the calculation time is given by job's CPU time
-        divided by a configurable `calculation_efficiency` that can be set != 1,  e.g. to
-        account for programmatic inefficiencies.
+        If a job contains input files and the drone the job runs on has a defined
+        remote connection (throughput < Inf) the calculation time is given by
+        job's CPU time divided by a configurable `calculation_efficiency` that
+        can be set != 1, e.g. to account for programmatic inefficiencies.
 
         Else, the calculation time remains equal to the job's original `walltime`.
         """
