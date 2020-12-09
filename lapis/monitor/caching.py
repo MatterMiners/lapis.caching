@@ -10,11 +10,10 @@ from lapis.monitor import (
     LoggingUDPSocketHandler,
     SIMULATION_START,
 )
-from lapis.storageelement import StorageElement
-from lapis.monitoredpipe import MonitoredPipe, MonitoredPipeInfo
+from lapis.caching.storageelement import StorageElement
+from lapis.caching.monitoredpipe import MonitoredPipe, MonitoredPipeInfo
 
 import time as pytime
-from usim import time
 
 
 class HitrateInfo(NamedTuple):

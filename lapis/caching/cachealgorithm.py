@@ -1,7 +1,7 @@
 from typing import Optional, Callable, Tuple
 
-from lapis.files import RequestedFile, StoredFile
-from lapis.storageelement import StorageElement
+from lapis.caching.files import RequestedFile, StoredFile
+from lapis.caching.storageelement import StorageElement
 from lapis.utilities.cache_cleanup_implementations import sort_files_by_cachedsince
 
 

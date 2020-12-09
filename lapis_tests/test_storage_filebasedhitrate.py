@@ -1,7 +1,7 @@
-from lapis.storageelement import FileBasedHitrateStorage
+from lapis.caching.storageelement import FileBasedHitrateStorage
 from lapis_tests import via_usim, DummyJob
-from lapis.files import RequestedFile_HitrateBased
-from lapis.storageelement import LookUpInformation
+from lapis.caching.files import RequestedFile_HitrateBased
+from lapis.caching.storageelement import LookUpInformation
 
 from usim import time
 

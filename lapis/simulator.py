@@ -11,7 +11,7 @@ from usim import run, time, until, Scope, Queue
 import lapis.monitor as monitor
 from lapis.drone import Drone
 from lapis.job import job_to_queue_scheduler
-from lapis.connection import Connection
+from lapis.caching.connection import Connection
 from lapis.monitor.caching import (
     storage_status,
     pipe_status,

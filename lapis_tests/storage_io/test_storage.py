@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 
-from lapis.storageelement import StorageElement
+from lapis.caching.storageelement import StorageElement
 from lapis.storage_io.storage import storage_reader
 
 

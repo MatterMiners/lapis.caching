@@ -5,7 +5,7 @@ from lapis.drone import Drone
 from lapis.job import Job
 
 from lapis_tests import via_usim, DummyScheduler, DummyDrone
-from lapis.connection import Connection
+from lapis.caching.connection import Connection
 
 
 class TestJob(object):

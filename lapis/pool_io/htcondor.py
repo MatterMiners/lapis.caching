@@ -3,7 +3,7 @@ from functools import partial
 
 from typing import Callable
 
-from lapis.connection import Connection
+from lapis.caching.connection import Connection
 from ..pool import Pool
 
 

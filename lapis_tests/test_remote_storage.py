@@ -1,8 +1,8 @@
 from usim import time
 
-from lapis.storageelement import RemoteStorage
+from lapis.caching.storageelement import RemoteStorage
 from lapis_tests import via_usim
-from lapis.files import RequestedFile
+from lapis.caching.files import RequestedFile
 
 
 class TestRemoteStorage(object):

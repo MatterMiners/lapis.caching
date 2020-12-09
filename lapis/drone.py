@@ -4,7 +4,7 @@ from usim import time, Scope, instant, Capacities, ResourcesUnavailable, Queue
 from typing import Optional
 
 from lapis.job import Job
-from lapis.connection import Connection
+from lapis.caching.connection import Connection
 
 from lapis.monitor.duplicates import DroneStatusCaching
 

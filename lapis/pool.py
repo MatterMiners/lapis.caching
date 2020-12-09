@@ -3,7 +3,7 @@ from typing import Generator, Callable
 from cobald import interfaces
 from usim import eternity, Scope, interval
 
-from lapis.connection import Connection
+from lapis.caching.connection import Connection
 from .drone import Drone
 
 

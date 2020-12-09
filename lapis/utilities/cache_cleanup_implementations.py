@@ -1,6 +1,6 @@
 from typing import List
 
-from lapis.files import StoredFile
+from lapis.caching.files import StoredFile
 
 
 def sort_files_by_cachedsince(stored_files: set) -> List[StoredFile]:

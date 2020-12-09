@@ -5,7 +5,7 @@ from usim import run, Resources
 
 from lapis.drone import Drone
 from lapis.job import Job
-from lapis.connection import Connection
+from lapis.caching.connection import Connection
 
 
 class UnfinishedTest(RuntimeError):

@@ -2,7 +2,7 @@ import abc
 
 from typing import NamedTuple
 
-from lapis.files import RequestedFile, StoredFile
+from lapis.caching.files import RequestedFile, StoredFile
 
 
 class LookUpInformation(NamedTuple):

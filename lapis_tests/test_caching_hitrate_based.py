@@ -1,18 +1,17 @@
 from usim import time
 from tempfile import NamedTemporaryFile
 import json
-from functools import partial
 
 from lapis_tests import via_usim, DummyDrone, DummyJob
-from lapis.connection import Connection
-from lapis.storageelement import FileBasedHitrateStorage, HitrateStorage
+from lapis.caching.connection import Connection
+from lapis.caching.storageelement import FileBasedHitrateStorage, HitrateStorage
 from lapis.storage_io.storage import storage_reader
-from lapis.files import RequestedFile
+from lapis.caching.files import RequestedFile
 from lapis.simulator import Simulator
 from lapis.job_io.htcondor import htcondor_job_reader
 from lapis.pool import StaticPool
 from lapis.pool_io.htcondor import htcondor_pool_reader
-from lapis.scheduler import CondorJobScheduler, CondorClassadJobScheduler
+from lapis.scheduler import CondorClassadJobScheduler
 
 conversion_GB_to_B = 1000 * 1000 * 1000
 

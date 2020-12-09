@@ -1,10 +1,10 @@
 from typing import Optional
 
 from usim import time, Resources, Scope
-from lapis.monitoredpipe import MonitoredPipe
+from lapis.caching.monitoredpipe import MonitoredPipe
 from lapis.monitor import sampling_required
 
-from lapis.files import StoredFile, RequestedFile, RequestedFile_HitrateBased
+from lapis.caching.files import StoredFile, RequestedFile, RequestedFile_HitrateBased
 from lapis.interfaces._storage import Storage, LookUpInformation
 
 import logging

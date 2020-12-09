@@ -5,14 +5,14 @@ import logging.handlers
 from cobald.monitor.format_json import JsonFormatter
 from cobald.monitor.format_line import LineProtocolFormatter
 
-from lapis.connection import Connection
+from lapis.caching.connection import Connection
 from lapis.drone import Drone
 from lapis.job_io.htcondor import htcondor_job_reader
 
 from lapis.pool import StaticPool
 from lapis.pool_io.htcondor import htcondor_pool_reader
 from lapis.job_io.swf import swf_job_reader
-from lapis.storageelement import FileBasedHitrateStorage
+from lapis.caching.storageelement import FileBasedHitrateStorage
 from lapis.storage_io.storage import (
     storage_reader,
     storage_reader_filebased_hitrate_caching,

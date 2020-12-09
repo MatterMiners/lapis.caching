@@ -1,7 +1,7 @@
 import csv
 from functools import partial
 
-from lapis.files import StoredFile
+from lapis.caching.files import StoredFile
 
 
 def storage_reader(

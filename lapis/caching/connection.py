@@ -2,17 +2,17 @@ import random
 
 from typing import Union, Optional
 from usim import Scope, time
-from lapis.monitoredpipe import MonitoredPipe
+from lapis.caching.monitoredpipe import MonitoredPipe
 
 
-from lapis.cachealgorithm import (
+from lapis.caching.cachealgorithm import (
     CacheAlgorithm,
     check_size,
     check_relevance,
     delete_oldest_few_used,
 )
-from lapis.storageelement import StorageElement, RemoteStorage
-from lapis.files import RequestedFile, RequestedFile_HitrateBased
+from lapis.caching.storageelement import StorageElement, RemoteStorage
+from lapis.caching.files import RequestedFile, RequestedFile_HitrateBased
 from lapis.monitor import sampling_required
 from lapis.monitor.caching import HitrateInfo
 
