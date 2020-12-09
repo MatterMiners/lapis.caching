@@ -17,6 +17,7 @@ class Drone(interfaces.Pool):
     """
     Represents worker nodes in the simulation.
     """
+
     def __init__(
         self,
         scheduler,
@@ -48,16 +49,16 @@ class Drone(interfaces.Pool):
         self.connection = connection
         """connection object that holds remote connection and handles file transfers"""
         self.sitename = sitename
-        """identifies the site the drone belongs to, used to determine which caches a 
+        """identifies the site the drone belongs to, used to determine which caches a
         drone can use """
         self.pool_resources = pool_resources
         """dict stating the drone's resources"""
         self.resources = Capacities(**pool_resources)
-        """available resources, based on the amount of resources requested by 
+        """available resources, based on the amount of resources requested by
         jobs running on the drone """
         # shadowing requested resources to determine jobs to be killed
         self.used_resources = Capacities(**pool_resources)
-        """available resources, based on the amount of resources actually used by 
+        """available resources, based on the amount of resources actually used by
         jobs running on the drone"""
 
         if ignore_resources:
@@ -82,11 +83,11 @@ class Drone(interfaces.Pool):
 
         # caching-related
         self.jobs_with_cached_data = 0
-        """amount of jobs that currently run on the drone and that could read from 
+        """amount of jobs that currently run on the drone and that could read from
         the cache"""
         self.cached_data = 0
-        """used during scheduling, calculated for each job, is assigned the 
-        expectation value for the amount of cached data that is available to the 
+        """used during scheduling, calculated for each job, is assigned the
+        expectation value for the amount of cached data that is available to the
         drone"""
 
     def empty(self):

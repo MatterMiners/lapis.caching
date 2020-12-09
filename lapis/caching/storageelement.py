@@ -19,6 +19,7 @@ class RemoteStorage(Storage):
     storages in the simulation because resource pools may have differing network
     connections.
     """
+
     # TODO:: ensure that there can be multiple remote storages in the simulation
     def __init__(self, throughput: float):
         """
@@ -102,7 +103,7 @@ class StorageElement(Storage):
         throughput_limit: int = 10 * 1000 * 1000 * 1000,
         files: Optional[dict] = None,
         deletion_duration: float = 5,
-        update_duration: float = 1
+        update_duration: float = 1,
     ):
         """
         Intialization of a storage element object.
@@ -122,7 +123,7 @@ class StorageElement(Storage):
         self.name = name
         """identification of the storage"""
         self.sitename = sitename
-        """identifier, drones with the same sitename can access this 
+        """identifier, drones with the same sitename can access this
         storage"""
         self.deletion_duration = deletion_duration
         """amount of time passing while a file is deleted from the storage"""
@@ -138,7 +139,7 @@ class StorageElement(Storage):
         """amount of storage space that is currently in use"""
         self.connection = MonitoredPipe(throughput_limit)
         """Pipe representing the network connection to this storage
-        **Namespace problem between connection module and this pipe called 
+        **Namespace problem between connection module and this pipe called
         connection**"""
         self.connection.storage = repr(self)
 
@@ -247,6 +248,7 @@ class HitrateStorage(StorageElement):
     1 - `_hitrate` percent of the file are transferred from the remote storage
     associated to the hitrate storage.
     """
+
     def __init__(
         self,
         hitrate,
@@ -328,6 +330,7 @@ class FileBasedHitrateStorage(StorageElement):
 
     #TODO: this storage object has become very intermingled with the connection module and should be tidied up and restructured!
     """
+
     def __init__(
         self,
         name: Optional[str] = None,

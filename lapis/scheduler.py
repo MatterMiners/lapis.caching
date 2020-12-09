@@ -25,6 +25,7 @@ from usim import time
 class JobQueue(list):
     pass
 
+
 quantization_defaults = {
     "memory": HTCInt(128 * 1024 * 1024),
     "disk": HTCInt(1024 * 1024),
@@ -82,6 +83,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
         :param item: name of a quantity in the classad expression
         :return: current value of this item
         """
+
         def access_wrapped(name, requested=True):
             """
             Extracts the wrapped object's current quantity of a certain resource (
@@ -229,6 +231,7 @@ class JobScheduler(ABC):
         processing.
         """
         raise NotImplementedError
+
 
 class CondorJobScheduler(JobScheduler):
     """
@@ -797,6 +800,7 @@ class CondorClassadJobScheduler(JobScheduler):
         highest (prejobrank, jobrank) whose requirements are also compatible with the
         job is returned as best match.
         """
+
         def debug_evaluate(expr, my, target=None):
             """
             Reimplementation of the classad packages evaluate function. Having it

@@ -15,6 +15,7 @@ from lapis.scheduler import CondorClassadJobScheduler
 
 conversion_GB_to_B = 1000 * 1000 * 1000
 
+
 class TestHitrateCaching(object):
     def test_hitratestorage(self):
         size = 1000
@@ -53,8 +54,9 @@ class TestHitrateCaching(object):
     async def test_stream_file(self):
         throughput = 10
         size = 1000
-        requested_file = RequestedFile(filename="testfile",
-                                       filesize=100 * conversion_GB_to_B)
+        requested_file = RequestedFile(
+            filename="testfile", filesize=100 * conversion_GB_to_B
+        )
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         # does not transfer from cache but from remote storage as there are no files
         # in the HitrateStorage
@@ -70,8 +72,9 @@ class TestHitrateCaching(object):
         size = 1000
         drone = DummyDrone(throughput)
         job = DummyJob(True)
-        requested_files = dict(test=dict(usedsize=100 * conversion_GB_to_B,
-                                         hitrates={drone.sitename: 1.0}))
+        requested_files = dict(
+            test=dict(usedsize=100 * conversion_GB_to_B, hitrates={drone.sitename: 1.0})
+        )
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         # does not transfer from cache but from remote storage as there are no files
         # in the HitrateStorage
@@ -89,10 +92,14 @@ class TestHitrateCaching(object):
         size = 1000
         drone = DummyDrone(throughput)
         job = DummyJob(True)
-        requested_files = dict(test1=dict(usedsize=100 * conversion_GB_to_B,
-                                          hitrates={drone.sitename: 1.0}),
-                               test2=dict(usedsize=200 * conversion_GB_to_B, hitrates={
-                                   drone.sitename: 1.0}))
+        requested_files = dict(
+            test1=dict(
+                usedsize=100 * conversion_GB_to_B, hitrates={drone.sitename: 1.0}
+            ),
+            test2=dict(
+                usedsize=200 * conversion_GB_to_B, hitrates={drone.sitename: 1.0}
+            ),
+        )
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         drone.connection.add_storage_element(hitratestorage)
         # does not transfer from cache but from remote storage as there are no files
@@ -105,9 +112,9 @@ class TestHitrateCaching(object):
 
     @via_usim
     async def test_full_simulation_with_hitratebased_caching(self):
-        with NamedTemporaryFile(suffix=".csv") as machine_config, \
-                NamedTemporaryFile(suffix=".csv") as storage_config, \
-                NamedTemporaryFile(suffix=".json") as job_config:
+        with NamedTemporaryFile(suffix=".csv") as machine_config, NamedTemporaryFile(
+            suffix=".csv"
+        ) as storage_config, NamedTemporaryFile(suffix=".json") as job_config:
             with open(machine_config.name, "w") as write_stream:
                 write_stream.write(
                     "TotalSlotCPUs TotalSlotDisk TotalSlotMemory Count sitename \n"
@@ -129,20 +136,16 @@ class TestHitrateCaching(object):
                         "RemoteUserCpu": 2,
                         "Inputfiles": {
                             "a.root": {
-                              "filesize": 5,
-                              "usedsize": 5,
-                              "hitrates": {
-                                "mysite": 1.0
-                              }
-                        },
+                                "filesize": 5,
+                                "usedsize": 5,
+                                "hitrates": {"mysite": 1.0},
+                            },
                             "b.root": {
-                              "filesize": 5,
-                              "usedsize": 5,
-                              "hitrates": {
-                                "mysite": 0.0
-                              }
-                        }
-                      }
+                                "filesize": 5,
+                                "usedsize": 5,
+                                "hitrates": {"mysite": 0.0},
+                            },
+                        },
                     }
                 ]
                 json.dump(job_description, write_stream)
@@ -159,11 +162,12 @@ class TestHitrateCaching(object):
 
             simulator = Simulator()
             simulator.create_job_generator(
-                job_input=job_input,
-                job_reader=htcondor_job_reader
+                job_input=job_input, job_reader=htcondor_job_reader
             )
             simulator.create_scheduler(scheduler_type=CondorClassadJobScheduler)
-            simulator.create_connection_module(remote_throughput=0.1, filebased_caching=False)
+            simulator.create_connection_module(
+                remote_throughput=0.1, filebased_caching=False
+            )
             simulator.create_storage(
                 storage_input=storage_input,
                 storage_content_input=storage_content_input,
@@ -179,4 +183,3 @@ class TestHitrateCaching(object):
             simulator.enable_monitoring()
             simulator.run()
             assert 180 == simulator.duration
-

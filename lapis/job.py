@@ -144,7 +144,7 @@ class Job(object):
         self._success: Optional[bool] = None
         """flag indicating whether the job was completed successfully"""
         self.calculation_efficiency = calculation_efficiency
-        """efficiency of the job's calculations, can be < 1.0 to account for 
+        """efficiency of the job's calculations, can be < 1.0 to account for
         programmatical insufficiencies"""
         # caching-related
         self.requested_inputfiles = resources.pop("inputfiles", None)
@@ -154,7 +154,7 @@ class Job(object):
         self._read_from_cache = 0
         """flag indicating whether the job read from the cache"""
         self._cached_data = 0
-        """expectation value for the amount of data that was read from a cache by 
+        """expectation value for the amount of data that was read from a cache by
         this job"""
         self._original_walltime = self.walltime
         """stores the jobs original walltime as a reference"""
@@ -203,7 +203,7 @@ class Job(object):
             self.cache_probability = 0
 
         self.failed_matches = 0
-        """number of times the job entered the matchmaking process but was not 
+        """number of times the job entered the matchmaking process but was not
         scheduled to a drone"""
 
     @property

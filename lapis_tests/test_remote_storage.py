@@ -6,7 +6,6 @@ from lapis.caching.files import RequestedFile
 
 
 class TestRemoteStorage(object):
-
     def test_throughput(self):
         remote_storage = RemoteStorage(2.0)
         assert remote_storage.connection.throughput == 2000000000
@@ -20,9 +19,6 @@ class TestRemoteStorage(object):
     @via_usim
     async def test_transfer(self):
         remote_storage = RemoteStorage(1.0)
-        requested_file = RequestedFile("testfile", 10*1000*1000*1000)
+        requested_file = RequestedFile("testfile", 10 * 1000 * 1000 * 1000)
         await remote_storage.transfer(requested_file)
         assert time.now == 10
-
-
-

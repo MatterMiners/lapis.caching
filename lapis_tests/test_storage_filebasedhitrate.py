@@ -7,11 +7,12 @@ from usim import time
 
 import pytest
 
-class TestFileBasedHitrateStorag():
 
+class TestFileBasedHitrateStorag:
     def test_storage_initialization(self):
-        filebasedhitratestorage = FileBasedHitrateStorage(name="name", sitename="site",
-                                                          size=200, throughput_limit=1)
+        filebasedhitratestorage = FileBasedHitrateStorage(
+            name="name", sitename="site", size=200, throughput_limit=1
+        )
         assert filebasedhitratestorage.files == {}
         assert filebasedhitratestorage.name == "name"
         assert filebasedhitratestorage.sitename == "site"
@@ -23,8 +24,9 @@ class TestFileBasedHitrateStorag():
 
     @via_usim
     async def test_transfer(self):
-        filebasedhitratestorage = FileBasedHitrateStorage(name="name", sitename="site",
-                                                          size=200, throughput_limit=1)
+        filebasedhitratestorage = FileBasedHitrateStorage(
+            name="name", sitename="site", size=200, throughput_limit=1
+        )
         requestedFile = RequestedFile_HitrateBased("filename", 20, 1)
         await filebasedhitratestorage.transfer(requestedFile, DummyJob())
         assert time.now == 20
@@ -34,16 +36,18 @@ class TestFileBasedHitrateStorag():
             await filebasedhitratestorage.transfer(requestedFile, DummyJob())
 
     def test_find_file_in_storage(self):
-        filebasedhitratestorage = FileBasedHitrateStorage(name="name", sitename="site",
-                                                          size=200, throughput_limit=1)
+        filebasedhitratestorage = FileBasedHitrateStorage(
+            name="name", sitename="site", size=200, throughput_limit=1
+        )
         requestedFile = RequestedFile_HitrateBased("filename", 20, 1)
         foundFile = LookUpInformation(20, filebasedhitratestorage)
 
         assert filebasedhitratestorage.find(requestedFile) == foundFile
 
     def test_modification_of_stored_files(self):
-        filebasedhitratestorage = FileBasedHitrateStorage(name="name", sitename="site",
-                                                          size=200, throughput_limit=1)
+        filebasedhitratestorage = FileBasedHitrateStorage(
+            name="name", sitename="site", size=200, throughput_limit=1
+        )
         requestedFile = RequestedFile_HitrateBased("filename", 20, 1)
 
         filebasedhitratestorage.add(requestedFile)

@@ -65,4 +65,3 @@ Version [0.1.1] - 2019-10-24
 * **[Fixed]** Calculation of used and requested resource ratio
 * **[Fixed]** StopIteration handling by Job Generator
 * **[Fixed]** Importing of SWF files
-

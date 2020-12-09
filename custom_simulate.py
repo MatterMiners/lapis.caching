@@ -161,5 +161,3 @@ def ini_and_run(
 
     # run simulation
     simulator.run(until=until)
-
-

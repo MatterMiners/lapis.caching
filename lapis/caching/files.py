@@ -61,6 +61,7 @@ class RequestedFile(NamedTuple):
     """
     Representation of a requested file
     """
+
     filename: str
     """name of the file"""
     filesize: Optional[int] = None
@@ -88,6 +89,7 @@ class RequestedFile_HitrateBased(NamedTuple):
     The cachehitrate flag is somewhat messed up currently.
     **Its use should be reworked when remodeling the connection module.**
     """
+
     filename: str
     """name of the requested file"""
     filesize: int

@@ -15,12 +15,13 @@ class MonitoredPipeInfo(NamedTuple):
 
 class MonitoredPipe(Pipe):
     """Implementation of the usim pipe object that can be monitored"""
+
     def __init__(self, throughput: float):
         super().__init__(throughput)
         self._monitor = Notification()
         self._monitor_buffers: Dict[Any, Deque[MonitoredPipeInfo]] = {}
         self.storage = None
-        """storage object the pipe simulates the network connection for, for monitoring 
+        """storage object the pipe simulates the network connection for, for monitoring
         purposes"""
         self.transferred_data = 0
         """total amount of data transferred by the pipe, for monitoring purposes"""

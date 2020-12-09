@@ -57,7 +57,7 @@ class Connection(object):
                 file, storage
             ),
         )
-        """cache behavior file based caching, contains both caching and deletion 
+        """cache behavior file based caching, contains both caching and deletion
         strategy"""
         self._filebased_caching = filebased_caching
         """flag, true if file based caching is current caching mode"""
@@ -67,6 +67,7 @@ class Connection(object):
         Starts monitoring of pipe objects, should be called during simulator/monitoring
         initialization.
         """
+
         async def report_load_to_monitoring(pipe: MonitoredPipe):
             async for information in pipe.load():
                 await sampling_required.put(information)
@@ -191,7 +192,7 @@ class Connection(object):
             except ZeroDivisionError:
                 hitrate = 0
                 provides_file = 0
-        #TODO:: In which cases is hitrate not defined and how can they be covered? I
+        # TODO:: In which cases is hitrate not defined and how can they be covered? I
         # think that in this case this code should not be reached but I'm unsure
         # right now
 

@@ -56,12 +56,9 @@ extensions = [
 ]
 
 
-autodoc_default_options = {
-    'members': True,
-    'private-members':True
-}
+autodoc_default_options = {"members": True, "private-members": True}
 
-autodoc_member_order = 'groupwise'
+autodoc_member_order = "groupwise"
 autosummary_generate = True
 
 

@@ -82,6 +82,5 @@ class DummyDrone:
 
 
 class DummyJob:
-
     def __init__(self, reads_from_cache=False):
         self.reads_from_cache = reads_from_cache
