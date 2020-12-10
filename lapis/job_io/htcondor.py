@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Optional
 
-from lapis.job import Job
+from lapis.cachingjob import CachingJob
 from copy import deepcopy
 
 
@@ -42,7 +42,8 @@ def htcondor_job_reader(
         htcondor_reader = csv.DictReader(iterable, delimiter=" ", quotechar="'")
     else:
         logging.getLogger("implementation").error(
-            "Invalid input file %s. Job input file can not be read." % iterable.name
+            "Invalid input file %s. CachingJob input file can not be read."
+            % iterable.name
         )
     for entry in htcondor_reader:
         if float(entry[used_resource_name_mapping["walltime"]]) <= 0:
@@ -107,7 +108,7 @@ def htcondor_job_reader(
 
         except KeyError:
             pass
-        yield Job(
+        yield CachingJob(
             resources=resources,
             used_resources=used_resources,
             queue_date=float(entry[used_resource_name_mapping["queuetime"]]),

@@ -138,7 +138,7 @@ class CondorJobScheduler(object):
             cost = 0
             resources = drone.theoretical_available_resources
             # print(
-            #     "trying to match Job {} to {}, resources {}".format(
+            #     "trying to match CachingJob {} to {}, resources {}".format(
             #         repr(job), repr(drone), resources
             #     )
             # )

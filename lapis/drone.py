@@ -3,7 +3,7 @@ from cobald import interfaces
 from usim import time, Scope, instant, Capacities, ResourcesUnavailable, Queue
 from typing import Optional
 
-from lapis.job import Job
+from lapis.cachingjob import CachingJob
 from lapis.caching.connection import Connection
 
 from lapis.monitor.duplicates import DroneStatusCaching
@@ -205,7 +205,7 @@ class Drone(interfaces.Pool):
 
         await (time + 1)
 
-    async def schedule_job(self, job: Job, kill: bool = False):
+    async def schedule_job(self, job: CachingJob, kill: bool = False):
         """
         A job is scheduled to a drone by putting it in the drone's job queue.
 
@@ -215,7 +215,7 @@ class Drone(interfaces.Pool):
         """
         await self._job_queue.put((job, kill))
 
-    async def _run_job(self, job: Job, kill: bool):
+    async def _run_job(self, job: CachingJob, kill: bool):
         """
         Method manages to start a job in the context of the given drone.
         The job is started regardless of the available resources. The resource
@@ -291,7 +291,7 @@ class Drone(interfaces.Pool):
                 )
             )
 
-    def look_up_cached_data(self, job: Job):
+    def look_up_cached_data(self, job: CachingJob):
         """
         Determines the amount of the job's input data that is stored in caches the
         drone can access and sets the drone's `cached_data` attribute to the

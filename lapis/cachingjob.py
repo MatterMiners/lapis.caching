@@ -4,12 +4,13 @@ from usim import time, Scope, instant
 from usim import CancelTask
 
 from lapis.monitor import sampling_required
+from lapis.job import Job
 
 if TYPE_CHECKING:
     from lapis.drone import Drone
 
 
-class Job(object):
+class CachingJob(Job):
     """
     Objects of this class represent jobs. The job is described from the batch
     system's viewpoint by the following attributes:

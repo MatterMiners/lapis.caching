@@ -6,7 +6,7 @@ from cobald.monitor.format_json import JsonFormatter
 from cobald.monitor.format_line import LineProtocolFormatter
 
 from lapis.drone import Drone
-from lapis.job import Job
+from lapis.cachingjob import CachingJob
 from lapis.monitor import LoggingSocketHandler, LoggingUDPSocketHandler
 from lapis.pool import Pool
 from lapis.scheduler import CondorJobScheduler, JobQueue
@@ -135,7 +135,7 @@ job_statistics.logging_formatter = {
 }
 
 
-def job_events(job: Job) -> List[Dict]:
+def job_events(job: CachingJob) -> List[Dict]:
     """
     Log relevant events for jobs. Relevant events are
 
@@ -203,7 +203,7 @@ def job_events(job: Job) -> List[Dict]:
 
 
 job_events.name = "job_event"
-job_events.whitelist = (Job,)
+job_events.whitelist = (CachingJob,)
 job_events.logging_formatter = {
     LoggingSocketHandler.__name__: JsonFormatter(),
     # logging.StreamHandler.__name__: JsonFormatter(),

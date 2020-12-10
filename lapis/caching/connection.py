@@ -156,7 +156,7 @@ class Connection(object):
                         await potential_cache.add(requested_file, job_repr)
                     else:
                         print(
-                            f"APPLY CACHING DECISION: Job {job_repr}, "
+                            f"APPLY CACHING DECISION: CachingJob {job_repr}, "
                             f"File {requested_file.filename}: File wasnt "
                             f"cached @ {time.now}"
                         )

@@ -13,7 +13,7 @@ from classad._expression import ClassAd
 from usim import Scope, interval, Resources
 
 from lapis.drone import Drone
-from lapis.job import Job
+from lapis.cachingjob import CachingJob
 from lapis.monitor import sampling_required
 from lapis.monitor.duplicates import UserDemand
 
@@ -42,7 +42,7 @@ requirements = my.requestcpus <= target.cpus && my.requestmemory <= target.memor
 """
 
 T = TypeVar("T")
-DJ = TypeVar("DJ", Drone, Job)
+DJ = TypeVar("DJ", Drone, CachingJob)
 
 
 class WrappedClassAd(ClassAd, Generic[DJ]):
@@ -448,7 +448,7 @@ class RankedClusters(Generic[DJ]):
         raise NotImplementedError
 
     @abstractmethod
-    def lookup(self, job: Job) -> None:
+    def lookup(self, job: CachingJob) -> None:
         """Update information about cached data for every drone"""
         raise NotImplementedError
 
@@ -574,7 +574,7 @@ class RankedAutoClusters(RankedClusters[DJ]):
         if group:
             yield group
 
-    def lookup(self, job: Job):
+    def lookup(self, job: CachingJob):
         for _, drones in self._clusters.items():
             for drone in drones:
                 drone._wrapped.look_up_cached_data(job)
@@ -650,7 +650,7 @@ class RankedNonClusters(RankedClusters[DJ]):
         for _ranked_key, drones in self._clusters.items():
             yield [{item} for item in drones]
 
-    def lookup(self, job: Job):
+    def lookup(self, job: CachingJob):
         for _, drones in self._clusters.items():
             for drone in drones:
                 drone._wrapped.look_up_cached_data(job)
@@ -875,12 +875,14 @@ class CondorClassadJobScheduler(JobScheduler):
         4. The matched jobs' execution is triggered.
 
         """
-        # Pre Job Rank is the same for all jobs
+        # Pre CachingJob Rank is the same for all jobs
         # Use a copy to allow temporary "remainder after match" estimates
         if self._drones.empty():
             return
         pre_job_drones = self._drones.copy()
-        matches: List[Tuple[int, WrappedClassAd[Job], WrappedClassAd[Drone]]] = []
+        matches: List[
+            Tuple[int, WrappedClassAd[CachingJob], WrappedClassAd[Drone]]
+        ] = []
         for queue_index, candidate_job in enumerate(self.job_queue):
             try:
                 pre_job_drones.lookup(candidate_job._wrapped)

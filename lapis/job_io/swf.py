@@ -6,7 +6,7 @@ Current implementation is based on version 2.2 of the
 import csv
 from typing import Optional
 
-from lapis.job import Job
+from lapis.cachingjob import CachingJob
 
 
 def swf_job_reader(
@@ -87,7 +87,7 @@ def swf_job_reader(
             )
             * unit_conversion_mapping.get(used_resource_name_mapping[key], 1)
         )
-        yield Job(
+        yield CachingJob(
             resources=resources,
             used_resources=used_resources,
             queue_date=float(row[header[used_resource_name_mapping["queuetime"]]]),

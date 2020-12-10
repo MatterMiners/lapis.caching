@@ -4,7 +4,7 @@ from functools import wraps
 from usim import run, Resources
 
 from lapis.drone import Drone
-from lapis.job import Job
+from lapis.cachingjob import CachingJob
 from lapis.caching.connection import Connection
 
 
@@ -64,7 +64,7 @@ class DummyScheduler:
     def update_drone(drone: Drone):
         pass
 
-    async def job_finished(self, job: Job):
+    async def job_finished(self, job: CachingJob):
         if job.successful:
             await self.statistics.increase(job_succeeded=1)
         else:

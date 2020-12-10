@@ -2,7 +2,7 @@ import pytest
 from usim import Scope, time
 
 from lapis.drone import Drone
-from lapis.job import Job
+from lapis.cachingjob import CachingJob
 
 from lapis_tests import via_usim, DummyScheduler, DummyDrone
 from lapis.caching.connection import Connection
@@ -11,26 +11,28 @@ from lapis.caching.connection import Connection
 class TestJob(object):
     def test_init(self):
         with pytest.raises(KeyError):
-            Job(resources={}, used_resources={})
+            CachingJob(resources={}, used_resources={})
         with pytest.raises(KeyError):
-            Job(resources={"walltime": 100}, used_resources={})
-        assert Job(resources={}, used_resources={"walltime": 100})
+            CachingJob(resources={"walltime": 100}, used_resources={})
+        assert CachingJob(resources={}, used_resources={"walltime": 100})
         with pytest.raises(AssertionError):
-            Job(resources={}, used_resources={"walltime": 100}, in_queue_since=-5)
+            CachingJob(
+                resources={}, used_resources={"walltime": 100}, in_queue_since=-5
+            )
 
     def test_name(self):
         name = "test"
-        job = Job(resources={}, used_resources={"walltime": 100}, name=name)
+        job = CachingJob(resources={}, used_resources={"walltime": 100}, name=name)
         assert job.name == name
-        assert repr(job) == "<Job: %s>" % name
-        job = Job(resources={}, used_resources={"walltime": 100})
+        assert repr(job) == "<CachingJob: %s>" % name
+        job = CachingJob(resources={}, used_resources={"walltime": 100})
         assert job.name == id(job)
-        assert repr(job) == "<Job: %s>" % id(job)
+        assert repr(job) == "<CachingJob: %s>" % id(job)
 
     @via_usim
     async def test_run_job(self):
         drone = DummyDrone()
-        job = Job(resources={"walltime": 50}, used_resources={"walltime": 10})
+        job = CachingJob(resources={"walltime": 50}, used_resources={"walltime": 10})
         assert float("inf") == job.waiting_time
         async with Scope() as scope:
             scope.do(job.run(drone))
@@ -41,7 +43,7 @@ class TestJob(object):
     @via_usim
     async def test_job_in_drone(self):
         scheduler = DummyScheduler()
-        job = Job(
+        job = CachingJob(
             resources={"walltime": 50, "cores": 1, "memory": 1},
             used_resources={"walltime": 10, "cores": 1, "memory": 1},
         )
@@ -65,7 +67,7 @@ class TestJob(object):
     @via_usim
     async def test_nonmatching_job_in_drone(self):
         scheduler = DummyScheduler()
-        job = Job(
+        job = CachingJob(
             resources={"walltime": 50, "cores": 2, "memory": 1},
             used_resources={"walltime": 10, "cores": 1, "memory": 1},
         )
@@ -88,11 +90,11 @@ class TestJob(object):
     @via_usim
     async def test_two_nonmatching_jobs(self):
         scheduler = DummyScheduler()
-        job_one = Job(
+        job_one = CachingJob(
             resources={"walltime": 50, "cores": 1, "memory": 1},
             used_resources={"walltime": 10, "cores": 1, "memory": 1},
         )
-        job_two = Job(
+        job_two = CachingJob(
             resources={"walltime": 50, "cores": 1, "memory": 1},
             used_resources={"walltime": 10, "cores": 1, "memory": 1},
         )
@@ -118,11 +120,11 @@ class TestJob(object):
     @via_usim
     async def test_two_matching_jobs(self):
         scheduler = DummyScheduler()
-        job_one = Job(
+        job_one = CachingJob(
             resources={"walltime": 50, "cores": 1, "memory": 1},
             used_resources={"walltime": 10, "cores": 1, "memory": 1},
         )
-        job_two = Job(
+        job_two = CachingJob(
             resources={"walltime": 50, "cores": 1, "memory": 1},
             used_resources={"walltime": 10, "cores": 1, "memory": 1},
         )
