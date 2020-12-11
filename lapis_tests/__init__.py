@@ -1,5 +1,6 @@
 from typing import Callable, Coroutine, Optional
 from functools import wraps
+import gc
 
 from usim import run, Resources
 
@@ -34,6 +35,7 @@ def via_usim(test_case: Callable[..., Coroutine]):
 
     @wraps(test_case)
     def run_test(*args, **kwargs):
+        gc.collect()  # force collecting leftover coroutines
         test_completed = False
 
         async def complete_test_case():
