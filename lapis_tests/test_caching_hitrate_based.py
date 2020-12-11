@@ -28,8 +28,7 @@ class TestHitrateCaching(object):
         assert 100 == looked_up_file.cached_filesize
         assert hitratestorage == looked_up_file.storage
 
-    @via_usim
-    async def test_add_storage_to_connection(self):
+    def test_add_storage_to_connection(self):
         throughput = 10
         size = 1000
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
@@ -37,15 +36,14 @@ class TestHitrateCaching(object):
         connection.add_storage_element(hitratestorage)
         assert hitratestorage in connection.storages[hitratestorage.sitename]
 
-    @via_usim
-    async def test_determine_inputfile_source(self):
+    def test_determine_inputfile_source(self):
         throughput = 10
         size = 1000
         requested_file = RequestedFile(filename="testfile", filesize=100)
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         connection = Connection(throughput=throughput)
         connection.add_storage_element(hitratestorage)
-        cache = await connection._determine_inputfile_source(
+        cache = connection._determine_inputfile_source(
             requested_file=requested_file, dronesite=None
         )
         assert cache is hitratestorage
@@ -110,8 +108,7 @@ class TestHitrateCaching(object):
         assert time.now == 15
         assert stream_time == 15
 
-    @via_usim
-    async def test_full_simulation_with_hitratebased_caching(self):
+    def test_full_simulation_with_hitratebased_caching(self):
         with NamedTemporaryFile(suffix=".csv") as machine_config, NamedTemporaryFile(
             suffix=".csv"
         ) as storage_config, NamedTemporaryFile(suffix=".json") as job_config:
@@ -183,3 +180,7 @@ class TestHitrateCaching(object):
             simulator.enable_monitoring()
             simulator.run()
             assert 180 == simulator.duration
+
+            job_input.close()
+            storage_input.close()
+            machine_input.close()
