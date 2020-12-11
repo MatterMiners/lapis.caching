@@ -24,9 +24,9 @@ import lapis  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 
-project = "lapis"
+project = "lapis.caching"
 author = "Eileen Kuehn, Max Fischer"
-copyright = f"2019 {author}"
+copyright = f"2019-2020 {author}"
 
 # The short X.Y version
 version = lapis.__version__
@@ -149,7 +149,7 @@ latex_documents = [
     (
         master_doc,
         "lapis.tex",
-        "lapis Documentation",
+        "lapis.caching Documentation",
         "Eileen Kuehn, Max Fischer",
         "manual",
     )
@@ -160,7 +160,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "lapis", "lapis Documentation", [author], 1)]
+man_pages = [(master_doc, project, "lapis.caching Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -171,8 +171,8 @@ man_pages = [(master_doc, "lapis", "lapis Documentation", [author], 1)]
 texinfo_documents = [
     (
         master_doc,
-        "lapis",
-        "lapis Documentation",
+        project,
+        "lapis.caching Documentation",
         author,
         "lapis",
         "One line description of project.",
@@ -206,8 +206,7 @@ epub_exclude_files = ["search.html"]
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "usim": ("https://usim.readthedocs.io/en/stable", None),
-    "cobald": ("https://cobald.readthedocs.io/en/stable", None),
+    "lapis": ("https://lapis-sim.readthedocs.io/en/stable", None),
 }
 
 # -- Options for todo extension ----------------------------------------------
