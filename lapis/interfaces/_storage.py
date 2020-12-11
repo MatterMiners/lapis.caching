@@ -35,7 +35,7 @@ class Storage(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def transfer(self, file: RequestedFile, job_repr):
+    async def transfer(self, file: RequestedFile):
         """
         Transfer size of given file via the storages' connection and update file
         information. If the file was deleted since it was originally looked up
@@ -46,7 +46,7 @@ class Storage(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def add(self, file: RequestedFile, job_repr):
+    async def add(self, file: RequestedFile):
         """
         Add file information to storage and transfer the size of the file via
         the storages' connection.
@@ -54,13 +54,13 @@ class Storage(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def remove(self, file: StoredFile, job_repr):
+    async def remove(self, file: StoredFile):
         """
         Remove all file information and used file size from the storage.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def find(self, file: RequestedFile, job_repr) -> LookUpInformation:
+    def find(self, file: RequestedFile) -> LookUpInformation:
         """Information if a file is stored in Storage"""
         raise NotImplementedError

@@ -1,5 +1,5 @@
 from lapis.caching.storageelement import FileBasedHitrateStorage
-from lapis_tests import via_usim, DummyJob
+from lapis_tests import via_usim
 from lapis.caching.files import RequestedFile_HitrateBased
 from lapis.caching.storageelement import LookUpInformation
 
@@ -28,12 +28,12 @@ class TestFileBasedHitrateStorag:
             name="name", sitename="site", size=200, throughput_limit=1
         )
         requestedFile = RequestedFile_HitrateBased("filename", 20, 1)
-        await filebasedhitratestorage.transfer(requestedFile, DummyJob())
+        await filebasedhitratestorage.transfer(requestedFile)
         assert time.now == 20
 
         with pytest.raises(ValueError):
             requestedFile = RequestedFile_HitrateBased("filename", 20, 0)
-            await filebasedhitratestorage.transfer(requestedFile, DummyJob())
+            await filebasedhitratestorage.transfer(requestedFile)
 
     def test_find_file_in_storage(self):
         filebasedhitratestorage = FileBasedHitrateStorage(

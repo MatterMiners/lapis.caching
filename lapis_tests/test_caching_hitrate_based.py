@@ -21,7 +21,7 @@ class TestHitrateCaching(object):
         size = 1000
         hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
         requested_file = RequestedFile(filename="testfile", filesize=100)
-        looked_up_file = hitratestorage.find(requested_file, job_repr=None)
+        looked_up_file = hitratestorage.find(requested_file)
 
         assert size == hitratestorage.available
         assert 0 == hitratestorage.used

@@ -14,7 +14,7 @@ from lapis.caching.cachealgorithm import (
 from lapis.caching.storageelement import StorageElement, RemoteStorage
 from lapis.caching.files import RequestedFile, RequestedFile_HitrateBased
 from lapis.monitor import sampling_required
-from lapis.monitor.caching import HitrateInfo
+from lapis.caching.monitor.caching import HitrateInfo
 
 
 class Connection(object):
@@ -115,7 +115,7 @@ class Connection(object):
         if provided_storages is not None:
             look_up_list = []
             for storage in provided_storages:
-                look_up_list.append(storage.find(requested_file, job_repr))
+                look_up_list.append(storage.find(requested_file))
             storage_list = sorted(
                 [entry for entry in look_up_list], key=lambda x: x[0], reverse=True
             )
@@ -162,7 +162,7 @@ class Connection(object):
                         )
                 except KeyError:
                     pass
-        await used_connection.transfer(requested_file, job_repr=job_repr)
+        await used_connection.transfer(requested_file)
 
     async def transfer_files(self, drone, requested_files: dict, job_repr):
         """

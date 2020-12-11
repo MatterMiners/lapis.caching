@@ -12,7 +12,7 @@ import lapis.monitor as monitor
 from lapis.drone import Drone
 from lapis.cachingjob import job_to_queue_scheduler
 from lapis.caching.connection import Connection
-from lapis.monitor.caching import (
+from lapis.caching.monitor.caching import (
     storage_status,
     pipe_status,
     hitrate_evaluation,

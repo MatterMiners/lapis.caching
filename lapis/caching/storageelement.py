@@ -67,7 +67,7 @@ class RemoteStorage(Storage):
         """
         raise NotImplementedError
 
-    def find(self, file: RequestedFile, **kwargs) -> LookUpInformation:
+    def find(self, file: RequestedFile) -> LookUpInformation:
         """
         All files are contained in remote storage. Therefore no functionality
         to determine whether the storage contains a certain file is provided.
@@ -158,19 +158,18 @@ class StorageElement(Storage):
     def available(self):
         return self.size - self.used
 
-    async def remove(self, file: StoredFile, job_repr=None):
+    async def remove(self, file: StoredFile):
         """
         Deletes file from storage object. The time this operation takes is defined
         by the storages deletion_duration attribute.
 
         :param file: representation of the file that is removed from the storage
-        :param job_repr: Needed for debug output, will be replaced
         """
         await (time + self.deletion_duration)
         await self._usedstorage.decrease(size=file.filesize)
         self.files.pop(file.filename)
 
-    async def add(self, file: RequestedFile, job_repr=None):
+    async def add(self, file: RequestedFile):
         """
         Adds file to storage object transferring it through the storage object's
         connection. This should be sufficient for now because files are only added
@@ -179,7 +178,6 @@ class StorageElement(Storage):
         direct file placement this has to be adapted.
 
         :param file: representation of the file that is added to the storage
-        :param job_repr: Needed for debug output, will be replaced
         """
 
         file = file.convert_to_stored_file_object(time.now)
@@ -187,19 +185,18 @@ class StorageElement(Storage):
         self.files[file.filename] = file
         await self.connection.transfer(file.filesize)
 
-    async def _update(self, stored_file: StoredFile, job_repr):
+    async def _update(self, stored_file: StoredFile):
         """
         Updates a stored files information upon access.
 
         :param stored_file:
-        :param job_repr: Needed for debug output, will be replaced
         :return:
         """
         await (time + self.update_duration)
         stored_file.lastaccessed = time.now
         stored_file.increment_accesses()
 
-    async def transfer(self, file: RequestedFile, job_repr=None):
+    async def transfer(self, file: RequestedFile):
         """
         Manages file transfer via the storage elements connection and updates file
         information. If the file should have been deleted since it was originally
@@ -211,23 +208,19 @@ class StorageElement(Storage):
         await self.connection.transfer(file.filesize)
         try:
             # TODO: needs handling of KeyError
-            await self._update(self.files[file.filename], job_repr)
+            await self._update(self.files[file.filename])
         except AttributeError:
             pass
 
-    def find(self, requested_file: RequestedFile, job_repr=None):
+    def find(self, file: RequestedFile):
         """
         Searches storage object for the requested_file and sends result (amount of
         cached data, storage object) to the queue.
 
-        :param requested_file:
-        :param job_repr: Needed for debug output, will be replaced
         :return: (amount of cached data, storage object)
         """
         try:
-            result = LookUpInformation(
-                self.files[requested_file.filename].filesize, self
-            )
+            result = LookUpInformation(self.files[file.filename].filesize, self)
         except KeyError:
             result = LookUpInformation(0, self)
         return result
@@ -277,7 +270,7 @@ class HitrateStorage(StorageElement):
     def used(self):
         return 0
 
-    async def transfer(self, file: RequestedFile, job_repr=None):
+    async def transfer(self, file: RequestedFile):
         """
         Every time a file is requested from this kind of storage, `_hitrate` percent
         of the file are found on and transferred from this storage.
@@ -285,7 +278,6 @@ class HitrateStorage(StorageElement):
         associated to the hitrate storage.
 
         :param file:
-        :param job_repr:
         """
         async with Scope() as scope:
             logging.getLogger("implementation").warning(
@@ -303,17 +295,17 @@ class HitrateStorage(StorageElement):
                 )
             )
 
-    def find(self, requested_file: RequestedFile, job_repr=None):
-        return LookUpInformation(requested_file.filesize, self)
+    def find(self, file: RequestedFile):
+        return LookUpInformation(file.filesize, self)
 
-    async def add(self, file: RequestedFile, job_repr=None):
+    async def add(self, file: RequestedFile):
         """
         As files are not contained explicitly, no functionality to add files is
         needed
         """
         pass
 
-    async def remove(self, file: StoredFile, job_repr=None):
+    async def remove(self, file: StoredFile):
         """
         As files are not contained explicitly, no functionality to remove files is
         needed
@@ -357,7 +349,7 @@ class FileBasedHitrateStorage(StorageElement):
     def used(self):
         return 0
 
-    async def transfer(self, file: RequestedFile_HitrateBased, job_repr=None):
+    async def transfer(self, file: RequestedFile_HitrateBased):
         if file.cachehitrate:
             await self.connection.transfer(total=file.filesize)
             await sampling_required.put(self.connection)
@@ -366,27 +358,23 @@ class FileBasedHitrateStorage(StorageElement):
             print("file is not cached but cache is file source, this should not occur")
             raise ValueError
 
-    def find(self, requested_file: RequestedFile_HitrateBased, job_repr=None):
+    def find(self, file: RequestedFile_HitrateBased):
         """
         Returns the expectation value for the amount of data of this file that are
         cached.
 
-        :param requested_file:
-        :param job_repr:
         :return: result of the lookup
         """
-        return LookUpInformation(
-            requested_file.filesize * requested_file.cachehitrate, self
-        )
+        return LookUpInformation(file.filesize * file.cachehitrate, self)
 
-    async def add(self, file: RequestedFile, job_repr=None):
+    async def add(self, file: RequestedFile):
         """
         As there is no explicit record of stored files, no functionality to add files is
         needed
         """
         pass
 
-    async def remove(self, file: StoredFile, job_repr=None):
+    async def remove(self, file: StoredFile):
         """
         As there is no explicit record of stored files, no functionality to
         remove files is needed
