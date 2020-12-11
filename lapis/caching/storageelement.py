@@ -180,7 +180,7 @@ class StorageElement(Storage):
         :param file: representation of the file that is added to the storage
         """
 
-        file = file.convert_to_stored_file_object(time.now)
+        file = file.to_stored_file(time.now)
         await self._usedstorage.increase(size=file.filesize)
         self.files[file.filename] = file
         await self.connection.transfer(file.filesize)
@@ -193,8 +193,7 @@ class StorageElement(Storage):
         :return:
         """
         await (time + self.update_duration)
-        stored_file.lastaccessed = time.now
-        stored_file.increment_accesses()
+        stored_file.access(access_time=time.now)
 
     async def transfer(self, file: RequestedFile):
         """

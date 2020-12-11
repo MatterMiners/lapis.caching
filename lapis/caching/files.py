@@ -38,22 +38,20 @@ class StoredFile(object):
         :param numberofaccesses: number of times the file was accessed
         """
         self.filename = filename
-        """name of the file """
         self.filesize = filesize
-        """size of the file"""
         self.storedsize = storedsize or self.filesize
-        """size of the file that is actually stored"""
         self.cachedsince = cachedsince
-        """point in time when the file was cached"""
         self.lastaccessed = lastaccessed
-        """time when the file was accessed the last time"""
         self.numberofaccesses = numberofaccesses
-        """number of times the file was accessed"""
 
-    def increment_accesses(self):
+    def access(self, access_time: int):
         """
-        Increments number of accesses of a file
+        Tracks a new access to the file at time `access_time`, including
+        incrementing the access count.
+
+        :param access_time: time when the file was accessed
         """
+        self.lastaccessed = access_time
         self.numberofaccesses += 1
 
 
@@ -67,13 +65,12 @@ class RequestedFile(NamedTuple):
     filesize: Optional[int] = None
     """size of the file"""
 
-    def convert_to_stored_file_object(self, currenttime):
+    def to_stored_file(self, currenttime: int) -> StoredFile:
         """
         Converts a requested file into a stored file
 
         :param currenttime: point in time when the conversion takes place
         """
-        print(self.filesize)
         return StoredFile(
             self.filename,
             filesize=self.filesize,
