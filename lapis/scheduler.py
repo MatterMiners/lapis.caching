@@ -1,5 +1,6 @@
 import random
 from abc import ABC, abstractmethod
+from statistics import mean
 from typing import Dict, Iterator, Tuple, List, TypeVar, Generic, Set, NamedTuple, Any
 from weakref import WeakKeyDictionary
 
@@ -16,8 +17,6 @@ from lapis.drone import Drone
 from lapis.cachingjob import CachingJob
 from lapis.monitor import sampling_required
 from lapis.monitor.duplicates import UserDemand
-
-from numpy import mean
 
 from usim import time
 
