@@ -92,7 +92,7 @@ class Connection(object):
         except KeyError:
             self.storages[storage_element.sitename] = [storage_element]
 
-    async def _determine_inputfile_source(
+    def _determine_inputfile_source(
         self,
         requested_file: RequestedFile,
         dronesite: Optional[str],
@@ -138,7 +138,7 @@ class Connection(object):
         :param dronesite:
         :param job_repr:
         """
-        used_connection = await self._determine_inputfile_source(
+        used_connection = self._determine_inputfile_source(
             requested_file, dronesite, job_repr
         )
         if self._filebased_caching:
