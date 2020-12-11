@@ -15,11 +15,6 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import os
-import sys
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import lapis  # noqa: E402
 
 
 # -- Project information -----------------------------------------------------
@@ -29,7 +24,7 @@ author = "Eileen Kuehn, Max Fischer"
 copyright = f"2019-2020 {author}"
 
 # The short X.Y version
-version = lapis.__version__
+version = "0.1.0"
 # The full version, including alpha/beta/rc tags
 release = version
 
