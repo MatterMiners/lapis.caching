@@ -25,5 +25,12 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.6.1"
 lapis-sim = "^0.4.1"
+classad = "^0.4.0"
+numpy = "^1.19.4"
 
 [tool.poetry.dev-dependencies]
+pytest = ">= 4.3.0"
+flake8 = "^3.8.4"
+flake8-bugbear = "^20.11.1"
+black = { version = "^20.8b1", markers = "implementation_name=='cpython'" }
+pre-commit = "^2.9.3"
