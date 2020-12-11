@@ -15,15 +15,18 @@
 		"Inputfiles": {
 			"a.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"b.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"c.root": {
-					"filesize": 25000,
-					"usedsize": 20000
+				"filesize": 25000,
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			}
 		}
 	},
@@ -43,15 +46,18 @@
 		"Inputfiles": {
 			"a.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"b.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"c.root": {
-					"filesize": 25000,
-					"usedsize": 20000
+				"filesize": 25000,
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			}
 		}
 	},
@@ -70,15 +76,18 @@
 		"Inputfiles": {
 			"a.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"b.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"c.root": {
-					"filesize": 25000,
-					"usedsize": 20000
+				"filesize": 25000,
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			}
 		}
 	},
@@ -98,15 +107,18 @@
 		"Inputfiles": {
 			"a.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"b.root": {
 				"filesize": 25000,
-				"usedsize": 20000
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			},
 			"c.root": {
-					"filesize": 25000,
-					"usedsize": 20000
+				"filesize": 25000,
+				"usedsize": 20000,
+				"hitrates": {"x":  1}
 			}
 		}
 	}
