@@ -93,10 +93,7 @@ class Connection(object):
             self.storages[storage_element.sitename] = [storage_element]
 
     def _determine_inputfile_source(
-        self,
-        requested_file: RequestedFile,
-        dronesite: Optional[str],
-        job_repr: Optional[str] = None,
+        self, requested_file: RequestedFile, dronesite: Optional[str]
     ) -> Union[StorageElement, RemoteStorage]:
         """
         Collects NamedTuples containing the amount of data of the requested file
@@ -108,7 +105,6 @@ class Connection(object):
 
         :param requested_file:
         :param dronesite:
-        :param job_repr:
         :return: pipe that will be used for file transfer
         """
         provided_storages = self.storages.get(dronesite, None)
@@ -125,9 +121,7 @@ class Connection(object):
                     return entry.storage
         return self.remote_connection
 
-    async def stream_file(
-        self, requested_file: RequestedFile, dronesite, job_repr=None
-    ):
+    async def stream_file(self, requested_file: RequestedFile, dronesite):
         """
         Determines which storage object is used to provide the requested file and
         starts the files transfer. For files transferred via remote connection a
@@ -136,11 +130,8 @@ class Connection(object):
 
         :param requested_file:
         :param dronesite:
-        :param job_repr:
         """
-        used_connection = self._determine_inputfile_source(
-            requested_file, dronesite, job_repr
-        )
+        used_connection = self._determine_inputfile_source(requested_file, dronesite)
         if self._filebased_caching:
             if used_connection == self.remote_connection and self.storages.get(
                 dronesite, None
@@ -152,11 +143,11 @@ class Connection(object):
                     )
                     if cache_file:
                         for file in files_for_deletion:
-                            await potential_cache.remove(file, job_repr)
-                        await potential_cache.add(requested_file, job_repr)
+                            await potential_cache.remove(file)
+                        await potential_cache.add(requested_file)
                     else:
                         print(
-                            f"APPLY CACHING DECISION: CachingJob {job_repr}, "
+                            f"APPLY CACHING DECISION: CachingJob, "
                             f"File {requested_file.filename}: File wasnt "
                             f"cached @ {time.now}"
                         )
@@ -215,6 +206,6 @@ class Connection(object):
                 requested_file = RequestedFile(
                     inputfilename, inputfilespecs["usedsize"]
                 )
-            await self.stream_file(requested_file, drone.sitename, job_repr)
+            await self.stream_file(requested_file, drone.sitename)
         stream_time = time.now - start_time
         return stream_time
