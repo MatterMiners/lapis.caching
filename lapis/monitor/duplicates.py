@@ -1,6 +1,6 @@
 import logging.handlers
 from typing import NamedTuple, List, Dict
-from lapis.monitor import LoggingSocketHandler, LoggingUDPSocketHandler
+from lapis.monitor.core import LoggingSocketHandler, LoggingUDPSocketHandler
 
 from cobald.monitor.format_json import JsonFormatter
 from cobald.monitor.format_line import LineProtocolFormatter

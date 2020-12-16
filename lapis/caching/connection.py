@@ -13,8 +13,8 @@ from lapis.caching.cachealgorithm import (
 )
 from lapis.caching.storageelement import StorageElement, RemoteStorage
 from lapis.caching.files import RequestedFile, RequestedFile_HitrateBased
-from lapis.monitor import sampling_required
-from lapis.caching.monitor.caching import HitrateInfo
+from lapis.monitor.core import sampling_required
+from lapis.monitor.caching import HitrateInfo
 
 
 class Connection(object):

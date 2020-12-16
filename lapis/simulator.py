@@ -6,18 +6,21 @@ from functools import partial
 from typing import List
 
 from cobald.interfaces import Controller
+from cobald.monitor.format_line import LineProtocolFormatter
 from usim import run, time, until, Scope, Queue
 
-import lapis.monitor as monitor
+import lapis.monitor.core as monitor
 from lapis.drone import Drone
 from lapis.cachingjob import job_to_queue_scheduler
 from lapis.caching.connection import Connection
-from lapis.caching.monitor.caching import (
+from lapis.monitor.caching import (
     storage_status,
     pipe_status,
     hitrate_evaluation,
     simulation_id,
     pipe_data_volume,
+    extended_job_events,
+    drone_statistics_caching,
 )
 from lapis.monitor.general import (
     user_demand,
@@ -25,8 +28,6 @@ from lapis.monitor.general import (
     resource_statistics,
     pool_status,
     configuration_information,
-    job_events,
-    drone_statistics_caching,
 )
 from lapis.monitor.duplicates import user_demand_tmp, drone_statistics_caching_tmp
 from lapis.monitor.cobald import drone_statistics, pool_statistics
@@ -54,14 +55,52 @@ class Simulator(object):
         self.duration = None
 
     def enable_monitoring(self):
+        # configure for caching-specific monitoring
+        user_demand.logging_formatter[
+            logging.StreamHandler.__name__
+        ] = LineProtocolFormatter(tags={"tardis"}, resolution=1e-9)
+        job_statistics.logging_formatter[
+            logging.StreamHandler.__name__
+        ] = LineProtocolFormatter(
+            tags={"tardis", "pool_configuration", "pool_type", "pool"}, resolution=1e-9
+        )
+        pool_statistics.logging_formatter[
+            logging.StreamHandler.__name__
+        ] = LineProtocolFormatter(
+            tags={"tardis", "pool_configuration", "pool_type", "pool"}, resolution=1e-9
+        )
+        drone_statistics.logging_formatter[
+            logging.StreamHandler.__name__
+        ] = LineProtocolFormatter(
+            tags={"tardis", "pool_configuration", "pool_type", "pool"}, resolution=1e-9
+        )
+        resource_statistics.logging_formatter[
+            logging.StreamHandler.__name__
+        ] = LineProtocolFormatter(
+            tags={"tardis", "resource_type", "pool_configuration", "pool_type", "pool"},
+            resolution=1e-9,
+        )
+        pool_status.logging_formatter[
+            logging.StreamHandler.__name__
+        ] = LineProtocolFormatter(
+            tags={"tardis", "parent_pool", "pool_configuration", "pool_type", "pool"},
+            resolution=1e-9,
+        )
+        configuration_information.logging_formatter[
+            logging.StreamHandler.__name__
+        ] = LineProtocolFormatter(
+            tags={"tardis", "pool_configuration", "resource_type"}, resolution=1e-9
+        )
+
         self.monitoring.register_statistic(user_demand)
         self.monitoring.register_statistic(job_statistics)
-        self.monitoring.register_statistic(job_events)
         self.monitoring.register_statistic(pool_statistics)
         self.monitoring.register_statistic(drone_statistics)
         self.monitoring.register_statistic(resource_statistics)
         self.monitoring.register_statistic(pool_status)
         self.monitoring.register_statistic(configuration_information)
+        # caching related statistics
+        self.monitoring.register_statistic(extended_job_events)
         self.monitoring.register_statistic(storage_status)
         self.monitoring.register_statistic(pipe_status)
         self.monitoring.register_statistic(drone_statistics_caching)

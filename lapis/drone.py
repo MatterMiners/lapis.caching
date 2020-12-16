@@ -1,12 +1,14 @@
 from cobald import interfaces
 
 from usim import time, Scope, instant, Capacities, ResourcesUnavailable, Queue
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from lapis.cachingjob import CachingJob
-from lapis.caching.connection import Connection
 
 from lapis.monitor.duplicates import DroneStatusCaching
+
+if TYPE_CHECKING:
+    from lapis.caching.connection import Connection
 
 
 class ResourcesExceeded(Exception):
@@ -25,7 +27,7 @@ class Drone(interfaces.Pool):
         scheduling_duration: Optional[float] = None,
         ignore_resources: list = None,
         sitename: str = None,
-        connection: Connection = None,
+        connection: "Connection" = None,
         empty: callable = lambda drone: drone.theoretical_available_resources.get(
             "cores", 1
         )
@@ -127,7 +129,7 @@ class Drone(interfaces.Pool):
         job queue, these jobs are executed. Starting jobs via a job queue was
         introduced to avoid errors in resource allocation and monitoring.
         """
-        from lapis.monitor import sampling_required
+        from lapis.monitor.core import sampling_required
 
         await (time + self.scheduling_duration)
         self._supply = 1
@@ -189,7 +191,7 @@ class Drone(interfaces.Pool):
         """
         Upon shutdown, the drone unregisters from the scheduler.
         """
-        from lapis.monitor import sampling_required
+        from lapis.monitor.core import sampling_required
 
         self._supply = 0
         self.scheduler.unregister_drone(self)
@@ -232,7 +234,7 @@ class Drone(interfaces.Pool):
         """
         job.drone = self
         async with Scope() as scope:
-            from lapis.monitor import sampling_required
+            from lapis.monitor.core import sampling_required
 
             self._utilisation = self._allocation = None
 

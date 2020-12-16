@@ -2,7 +2,7 @@ from typing import Optional
 
 from usim import time, Resources, Scope
 from lapis.caching.monitoredpipe import MonitoredPipe
-from lapis.monitor import sampling_required
+from lapis.monitor.core import sampling_required
 
 from lapis.caching.files import StoredFile, RequestedFile, RequestedFile_HitrateBased
 from lapis.interfaces._storage import Storage, LookUpInformation
@@ -67,7 +67,7 @@ class RemoteStorage(Storage):
         """
         raise NotImplementedError
 
-    def find(self, file: RequestedFile) -> LookUpInformation:
+    def find(self, file: RequestedFile, **kwargs) -> LookUpInformation:
         """
         All files are contained in remote storage. Therefore no functionality
         to determine whether the storage contains a certain file is provided.

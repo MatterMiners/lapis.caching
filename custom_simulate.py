@@ -22,7 +22,8 @@ from lapis.scheduler import CondorClassadJobScheduler
 from lapis.simulator import Simulator
 
 
-from lapis.monitor import LoggingUDPSocketHandler, SimulationTimeFilter
+from lapis.monitor.core import LoggingUDPSocketHandler
+from lapis.monitor.timefilter import SimulationTimeFilter
 
 from time import time
 

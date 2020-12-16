@@ -15,7 +15,7 @@ from usim import Scope, interval, Resources
 
 from lapis.drone import Drone
 from lapis.cachingjob import CachingJob
-from lapis.monitor import sampling_required
+from lapis.monitor.core import sampling_required
 from lapis.monitor.duplicates import UserDemand
 
 from usim import time

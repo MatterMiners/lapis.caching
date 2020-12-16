@@ -17,11 +17,8 @@ from lapis.storage_io.storage import storage_reader
 from lapis.scheduler import CondorJobScheduler
 from lapis.simulator import Simulator
 
-from lapis.monitor import (
-    LoggingSocketHandler,
-    LoggingUDPSocketHandler,
-    SimulationTimeFilter,
-)
+from lapis.monitor.core import LoggingSocketHandler, LoggingUDPSocketHandler
+from lapis.monitor.timefilter import SimulationTimeFilter
 
 last_step = 0
 
