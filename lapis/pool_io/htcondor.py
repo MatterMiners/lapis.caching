@@ -3,8 +3,7 @@ from functools import partial
 
 from typing import Callable
 
-from lapis.caching.connection import Connection
-from ..pool import Pool
+from lapis.pool import Pool
 
 
 def htcondor_pool_reader(
@@ -21,7 +20,6 @@ def htcondor_pool_reader(
     },
     pool_type: Callable = Pool,
     make_drone: Callable = None,
-    connection: Connection = None,
 ):
     """
     Load a pool configuration that was exported via htcondor from files or
@@ -53,5 +51,4 @@ def htcondor_pool_reader(
                 ignore_resources=["disk"],
                 sitename=row.get("sitename", None),
             ),
-            connection=connection,
         )
