@@ -29,7 +29,9 @@ class MonitoredPipe(Pipe):
     async def load(self) -> AsyncIterable[MonitoredPipeInfo]:
         """
         Monitor any changes of the throughput load of the pipe
+
         .. code:: python3
+
             async def report_load(pipe: MonitoredPipe):
                 async for event in pipe.load():
                     print(

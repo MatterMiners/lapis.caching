@@ -115,9 +115,7 @@ class CachingJob(Job):
         can be < 1.0 to account for programmatical insufficiencies
         """
         self.resources = resources
-        """dict containing resources requested by the job"""
         self.used_resources = used_resources
-        """dict containing resources actually used by the job"""
 
         for key in used_resources:
             if key not in resources:
