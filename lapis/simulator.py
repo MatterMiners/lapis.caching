@@ -118,8 +118,7 @@ class Simulator(object):
         for pool in pool_reader(
             iterable=pool_input,
             pool_type=pool_type,
-            make_drone=partial(Drone, self.job_scheduler),
-            connection=self.connection,
+            make_drone=partial(Drone, self.job_scheduler, connection=self.connection),
         ):
             self.pools.append(pool)
             if controller:
