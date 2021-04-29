@@ -5,7 +5,7 @@ from lapis.caching.monitoredpipe import MonitoredPipe
 from lapis.monitor.core import sampling_required
 
 from lapis.caching.files import StoredFile, RequestedFile, RequestedFile_HitrateBased
-from lapis.interfaces._storage import Storage, LookUpInformation
+from lapis.interfaces._storage import Storage, LookUpInformation, TransferStatistics
 
 import logging
 
@@ -44,7 +44,7 @@ class RemoteStorage(Storage):
     def used(self):
         return 0
 
-    async def transfer(self, file: RequestedFile, **kwargs):
+    async def transfer(self, file: RequestedFile, **kwargs) -> TransferStatistics:
         """
         Simulates the transfer of a requested file via the remote storage's pipe.
 
@@ -52,6 +52,7 @@ class RemoteStorage(Storage):
         """
         await self.connection.transfer(total=file.filesize)
         await sampling_required.put(self.connection)
+        return TransferStatistics(bytes_from_remote=file.filesize, bytes_from_cache=0)
 
     async def add(self, file: StoredFile, **kwargs):
         """
@@ -204,12 +205,14 @@ class StorageElement(Storage):
         :param file:
         :param job_repr:  Needed for debug output, will be replaced
         """
+        assert file.filename in self.files, f"File {file.filename} is not on storage"
         await self.connection.transfer(file.filesize)
         try:
             # TODO: needs handling of KeyError
             await self._update(self.files[file.filename])
         except AttributeError:
             pass
+        return TransferStatistics(bytes_from_remote=0, bytes_from_cache=file.filesize)
 
     def find(self, file: RequestedFile):
         """
@@ -278,21 +281,26 @@ class HitrateStorage(StorageElement):
 
         :param file:
         """
+        hitrate_size = self._hitrate * file.filesize
         async with Scope() as scope:
             logging.getLogger("implementation").warning(
                 "{} {} @ {} in {}".format(
-                    self._hitrate * file.filesize,
-                    (1 - self._hitrate) * file.filesize,
+                    hitrate_size,
+                    file.filesize - hitrate_size,
                     time.now,
                     file.filename[-30:],
                 )
             )
-            scope.do(self.connection.transfer(total=self._hitrate * file.filesize))
+            scope.do(self.connection.transfer(total=hitrate_size))
             scope.do(
                 self.remote_storage.connection.transfer(
-                    total=(1 - self._hitrate) * file.filesize
+                    total=file.filesize - hitrate_size
                 )
             )
+        return TransferStatistics(
+            bytes_from_remote=file.filesize - hitrate_size,
+            bytes_from_cache=hitrate_size,
+        )
 
     def find(self, file: RequestedFile):
         return LookUpInformation(file.filesize, self)
@@ -321,7 +329,7 @@ class FileBasedHitrateStorage(StorageElement):
     The definition of the storage objects size is currently irrelevant.
 
     # TODO: this storage object has become very intermingled with the connection
-    module and should be tidied up and restructured!
+        module and should be tidied up and restructured!
     """
 
     def __init__(
@@ -356,6 +364,7 @@ class FileBasedHitrateStorage(StorageElement):
             print("wants to read from remote")
             print("file is not cached but cache is file source, this should not occur")
             raise ValueError
+        return TransferStatistics(bytes_from_remote=0, bytes_from_cache=file.filesize)
 
     def find(self, file: RequestedFile_HitrateBased):
         """

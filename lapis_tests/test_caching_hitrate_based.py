@@ -2,7 +2,7 @@ from usim import time
 from tempfile import NamedTemporaryFile
 import json
 
-from lapis_tests import via_usim, DummyDrone, DummyJob
+from lapis_tests import via_usim, DummyDrone
 from lapis.caching.connection import Connection
 from lapis.caching.storageelement import FileBasedHitrateStorage, HitrateStorage
 from lapis.storage_io.storage import storage_reader
@@ -66,30 +66,35 @@ class TestHitrateCaching(object):
 
     @via_usim
     async def test_single_transfer_files(self):
+        hitrate = 0.5
         throughput = 10
         size = 1000
         drone = DummyDrone(throughput)
-        job = DummyJob(True)
         requested_files = dict(
             test=dict(usedsize=100 * conversion_GB_to_B, hitrates={drone.sitename: 1.0})
         )
-        hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
-        # does not transfer from cache but from remote storage as there are no files
-        # in the HitrateStorage
+        hitratestorage = HitrateStorage(hitrate=hitrate, size=size, files={})
+        # half of the data is transferred from remote the other from cache
         drone.connection.add_storage_element(hitratestorage)
-        stream_time = await drone.connection.transfer_files(
-            drone=drone, requested_files=requested_files, job_repr=job
+        (
+            stream_time,
+            _bytes_from_remote,
+            bytes_from_cache,
+            _provides_file,
+        ) = await drone.connection.transfer_files(
+            drone=drone, requested_files=requested_files
         )
 
         assert time.now == 5
         assert stream_time == 5
+        assert bytes_from_cache == 100 * conversion_GB_to_B * hitrate
 
     @via_usim
     async def test_simultaneous_transfer(self):
+        hitrate = 0.5
         throughput = 10
         size = 1000
         drone = DummyDrone(throughput)
-        job = DummyJob(True)
         requested_files = dict(
             test1=dict(
                 usedsize=100 * conversion_GB_to_B, hitrates={drone.sitename: 1.0}
@@ -98,15 +103,20 @@ class TestHitrateCaching(object):
                 usedsize=200 * conversion_GB_to_B, hitrates={drone.sitename: 1.0}
             ),
         )
-        hitratestorage = HitrateStorage(hitrate=0.5, size=size, files={})
+        hitratestorage = HitrateStorage(hitrate=hitrate, size=size, files={})
         drone.connection.add_storage_element(hitratestorage)
-        # does not transfer from cache but from remote storage as there are no files
-        # in the HitrateStorage
-        stream_time = await drone.connection.transfer_files(
-            drone=drone, requested_files=requested_files, job_repr=job
+        # half of the data is transferred from remote the other from cache
+        (
+            stream_time,
+            _bytes_from_remote,
+            bytes_from_cache,
+            _provides_file,
+        ) = await drone.connection.transfer_files(
+            drone=drone, requested_files=requested_files
         )
         assert time.now == 15
         assert stream_time == 15
+        assert bytes_from_cache == (100 + 200) * conversion_GB_to_B * hitrate
 
     def test_full_simulation_with_hitratebased_caching(self):
         with NamedTemporaryFile(suffix=".csv") as machine_config, NamedTemporaryFile(

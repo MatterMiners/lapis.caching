@@ -5,6 +5,13 @@ from typing import NamedTuple
 from lapis.caching.files import RequestedFile, StoredFile
 
 
+class TransferStatistics(NamedTuple):
+    bytes_from_remote: int
+    """bytes transferred from remote"""
+    bytes_from_cache: int
+    """bytes transferred from cache"""
+
+
 class LookUpInformation(NamedTuple):
     cached_filesize: int
     storage: "Storage"
@@ -35,7 +42,7 @@ class Storage(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def transfer(self, file: RequestedFile):
+    async def transfer(self, file: RequestedFile) -> TransferStatistics:
         """
         Transfer size of given file via the storages' connection and update file
         information. If the file was deleted since it was originally looked up

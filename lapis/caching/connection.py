@@ -1,6 +1,6 @@
 import random
 
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 from usim import Scope, time
 from lapis.caching.monitoredpipe import MonitoredPipe
 
@@ -14,6 +14,8 @@ from lapis.caching.cachealgorithm import (
 from lapis.caching.storageelement import StorageElement, RemoteStorage
 from lapis.caching.files import RequestedFile, RequestedFile_HitrateBased
 from lapis.monitor.core import sampling_required
+
+from lapis.interfaces._storage import TransferStatistics
 from lapis.monitor.caching import HitrateInfo
 
 
@@ -121,7 +123,9 @@ class Connection(object):
                     return entry.storage
         return self.remote_connection
 
-    async def stream_file(self, requested_file: RequestedFile, dronesite):
+    async def stream_file(
+        self, requested_file: RequestedFile, dronesite
+    ) -> TransferStatistics:
         """
         Determines which storage object is used to provide the requested file and
         starts the files transfer. For files transferred via remote connection a
@@ -153,59 +157,59 @@ class Connection(object):
                         )
                 except KeyError:
                     pass
-        await used_connection.transfer(requested_file)
+        transfer_statistics = await used_connection.transfer(requested_file)
+        return transfer_statistics
 
-    async def transfer_files(self, drone, requested_files: dict, job_repr):
+    async def transfer_files(
+        self, drone, requested_files: dict
+    ) -> Tuple[int, int, int, int]:
         """
         Converts dict information about requested files to RequestedFile object and
         sequentially streams all files.
 
         :param drone:
         :param requested_files:
-        :param job_repr:
-        :return: time that passed while file was transferred
+        :return: time that passed while file was transferred, bytes that were
+            transferred from remote, bytes that were transferred from cache, and
+            information if files were provided by cache
         """
-
         start_time = time.now
+
+        requested_bytes = sum([file["usedsize"] for file in requested_files.values()])
 
         # decision if a jobs inputfiles are cached based on hitrate
         random_inputfile_information = next(iter(requested_files.values()))
+        # TODO: does not work in case non-hitrate-based filespecs are given
         if "hitrates" in random_inputfile_information.keys():
-            try:
-                hitrate = sum(
-                    [
-                        file["usedsize"] * file["hitrates"].get(drone.sitename, 0.0)
-                        for file in requested_files.values()
-                    ]
-                ) / sum([file["usedsize"] for file in requested_files.values()])
-                provides_file = int(random.random() < hitrate)
-
-            except ZeroDivisionError:
-                hitrate = 0
-                provides_file = 0
-        # TODO:: In which cases is hitrate not defined and how can they be covered? I
-        # think that in this case this code should not be reached but I'm unsure
-        # right now
+            cached_bytes = sum(
+                [
+                    file["usedsize"] * file["hitrates"].get(drone.sitename, 0.0)
+                    for file in requested_files.values()
+                ]
+            )
+            # TODO: should be 1 in case of requested_bytes == 0
+            hitrate = cached_bytes / requested_bytes if requested_bytes > 0 else 0
+            provides_file = int(random.random() < hitrate)
+        # TODO: In which cases is hitrate not defined and how can they be covered? I
+        #   think that in this case this code should not be reached but I'm unsure
+        #   right now
 
         await sampling_required.put(
-            HitrateInfo(
-                hitrate,
-                sum([file["usedsize"] for file in requested_files.values()]),
-                provides_file,
-            )
+            HitrateInfo(hitrate, requested_bytes, provides_file)
         )
-        job_repr._read_from_cache = provides_file
 
-        for inputfilename, inputfilespecs in requested_files.items():
-            if "hitrates" in inputfilespecs.keys():
+        bytes_from_cache = 0
+        bytes_from_remote = 0
+        for filename, filespecs in requested_files.items():
+            filesize = filespecs["usedsize"]
+            if "hitrates" in filespecs.keys():
                 requested_file = RequestedFile_HitrateBased(
-                    inputfilename, inputfilespecs["usedsize"], provides_file
+                    filename, filesize, provides_file
                 )
-
             else:
-                requested_file = RequestedFile(
-                    inputfilename, inputfilespecs["usedsize"]
-                )
-            await self.stream_file(requested_file, drone.sitename)
+                requested_file = RequestedFile(filename, filesize)
+            transfer_statistics = await self.stream_file(requested_file, drone.sitename)
+            bytes_from_cache += transfer_statistics.bytes_from_cache
+            bytes_from_remote += transfer_statistics.bytes_from_remote
         stream_time = time.now - start_time
-        return stream_time
+        return stream_time, bytes_from_remote, bytes_from_cache, provides_file

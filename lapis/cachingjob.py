@@ -194,15 +194,21 @@ class CachingJob(Job):
         return result
 
     async def _transfer_inputfiles(self):
-        start = time.now
+        transfer_time = 0
         try:
-            await self.drone.connection.transfer_files(
-                drone=self.drone, requested_files=self.used_inputfiles, job_repr=self
+            (
+                transfer_time,
+                bytes_from_remote,  # FIXME: include somewhere?
+                bytes_from_cache,  # FIXME: include somewhere?
+                provides_file,
+            ) = await self.drone.connection.transfer_files(
+                drone=self.drone, requested_files=self.used_inputfiles
             )
+            self._read_from_cache = provides_file
         except AttributeError:
             pass
         print("end transfer files ", time.now)
-        self._transfer_time = time.now - start
+        self._transfer_time = transfer_time
 
     async def run(self, drone: "Drone"):
         """
