@@ -113,10 +113,10 @@ storage_status.logging_formatter = {
 
 def pipe_status(pipeinfo: MonitoredPipeInfo) -> list:
     """
-    #     Log information about the pipes
-    #     :param storage:
-    #     :return:
-    #     """
+    Log information about the pipes
+    :param storage:
+    :return:
+    """
     results = [
         {
             "pipe": repr(pipeinfo.pipename),
