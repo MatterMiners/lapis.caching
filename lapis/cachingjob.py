@@ -70,7 +70,6 @@ class CachingJob(Job):
         "_cached_data",
         "_total_input_data",
         "_original_walltime",
-        "_calculation_time",
         "_transfer_time",
         "failed_matches",
         "cputime",
@@ -119,8 +118,6 @@ class CachingJob(Job):
         this job"""
         self._original_walltime = self.walltime
         """stores the jobs original walltime as a reference"""
-        self._calculation_time = 0
-        """time the job takes only to perform all calculations"""
         self._transfer_time = 0
         """time the job takes only to transfer all input data"""
 
@@ -167,7 +164,8 @@ class CachingJob(Job):
         """number of times the job entered the matchmaking process but was not
         scheduled to a drone"""
 
-    async def _calculate(self):
+    @property
+    def _calculation_time(self):
         """
         Determines a jobs calculation time based on the jobs CPU time and a
         calculation efficiency representing inefficient programming.
@@ -190,11 +188,10 @@ class CachingJob(Job):
             result = (
                 self.used_resources["cores"] / self.calculation_efficiency
             ) * self.walltime
-            self._calculation_time = result
 
         except (KeyError, TypeError):
             pass
-        await (time + result)
+        return result
 
     async def _transfer_inputfiles(self):
         start = time.now
@@ -230,7 +227,7 @@ class CachingJob(Job):
             async with Scope() as scope:
                 await instant
                 scope.do(self._transfer_inputfiles())
-                scope.do(self._calculate())
+                await (time + self._calculation_time)
         except CancelTask:
             print("CancelTask")
             # self.drone = None

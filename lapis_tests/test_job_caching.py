@@ -13,7 +13,7 @@ class TestJobCaching(object):
         )
         self.job.drone = DummyDrone(1)
         starttime = time.now
-        await self.job._calculate()
+        await (time + self.job._calculation_time)
         assert time.now - starttime == 10
 
         self.job = CachingJob(
@@ -22,7 +22,7 @@ class TestJobCaching(object):
         )
         self.job.drone = DummyDrone(1)
         starttime = time.now
-        await self.job._calculate()
+        await (time + self.job._calculation_time)
         assert time.now - starttime == 7
 
         self.job = CachingJob(
@@ -32,7 +32,7 @@ class TestJobCaching(object):
         )
         self.job.drone = DummyDrone(1)
         starttime = time.now
-        await self.job._calculate()
+        await (time + self.job._calculation_time)
         assert time.now - starttime == 14
 
         self.job = CachingJob(
@@ -42,7 +42,7 @@ class TestJobCaching(object):
         )
         self.job.drone = DummyDrone(1)
         starttime = time.now
-        await self.job._calculate()
+        await (time + self.job._calculation_time)
         assert time.now - starttime == 10
 
     @via_usim
