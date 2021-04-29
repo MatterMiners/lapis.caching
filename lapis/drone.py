@@ -307,13 +307,13 @@ class Drone(interfaces.Pool):
         cached_data = 0
         caches = self.connection.storages.get(self.sitename, None)
         if caches:
-            if job.requested_inputfiles:
+            if job.inputfiles:
                 cached_data = sum(
                     [
                         filespecs["hitrates"].get(cache.sitename, 0)
                         * filespecs["filesize"]
                         for cache in caches
-                        for filespecs in job.requested_inputfiles.values()
+                        for filespecs in job.inputfiles.values()
                     ]
                 )
         self.cached_data = cached_data

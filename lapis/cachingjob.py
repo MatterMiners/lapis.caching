@@ -62,7 +62,7 @@ class CachingJob(Job):
     """
 
     __slots__ = (
-        "requested_inputfiles",
+        "inputfiles",
         "used_inputfiles",
         "calculation_efficiency",
         "__weakref__",
@@ -108,7 +108,7 @@ class CachingJob(Job):
         """efficiency of the job's calculations, can be < 1.0 to account for
         programmatical insufficiencies"""
         # caching-related
-        self.requested_inputfiles = resources.pop("inputfiles", None)
+        self.inputfiles = resources.pop("inputfiles", None)
         """dict of input files requested by the job and respective file sizes"""
         self.used_inputfiles = used_resources.pop("inputfiles", None)
         """dict of input files read by the job and respective amount of read data"""
@@ -182,7 +182,7 @@ class CachingJob(Job):
         result = self.walltime
         try:
             if (
-                not self.requested_inputfiles
+                not self.inputfiles
                 or self.drone.connection.remote_connection.connection.throughput
                 == float("Inf")
             ):
