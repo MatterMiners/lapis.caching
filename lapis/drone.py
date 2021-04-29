@@ -1,6 +1,6 @@
-from cobald import interfaces
+from lapis.workernode import WorkerNode
 
-from usim import time, Scope, instant, Capacities, ResourcesUnavailable, Queue
+from usim import time, Scope, instant, ResourcesUnavailable
 from typing import Optional, TYPE_CHECKING
 
 from lapis.cachingjob import CachingJob
@@ -11,11 +11,7 @@ if TYPE_CHECKING:
     from lapis.caching.connection import Connection
 
 
-class ResourcesExceeded(Exception):
-    ...
-
-
-class Drone(interfaces.Pool):
+class Drone(WorkerNode):
     """
     Represents worker nodes in the simulation.
     """
@@ -47,41 +43,15 @@ class Drone(interfaces.Pool):
         :param empty: callable that determines whether the drone is currently running
             any jobs
         """
-        super(Drone, self).__init__()
-        self.scheduler = scheduler
-        """scheduler that assigns jobs to the drone"""
+        super().__init__(
+            scheduler, pool_resources, scheduling_duration, ignore_resources
+        )
         self.connection = connection
         """connection object that holds remote connection and handles file transfers"""
         self.sitename = sitename
         """identifies the site the drone belongs to, used to determine which caches a
         drone can use """
-        self.pool_resources = pool_resources
-        """dict stating the drone's resources"""
-        self.resources = Capacities(**pool_resources)
-        """available resources, based on the amount of resources requested by
-        jobs running on the drone """
-        # shadowing requested resources to determine jobs to be killed
-        self.used_resources = Capacities(**pool_resources)
-        """available resources, based on the amount of resources actually used by
-        jobs running on the drone"""
 
-        if ignore_resources:
-            self._valid_resource_keys = [
-                resource
-                for resource in self.pool_resources
-                if resource not in ignore_resources
-            ]
-        else:
-            self._valid_resource_keys = self.pool_resources.keys()
-        self.scheduling_duration = scheduling_duration
-        """amount of time that passes between the drone's
-        start up and it's registration at the scheduler"""
-        self._supply = 0
-        self.jobs = 0
-        """number of jobs running on the drone"""
-        self._allocation = None
-        self._utilisation = None
-        self._job_queue = Queue()
         self._empty = empty
         """method that is used to determine whether a drone is empty"""
 
@@ -101,26 +71,6 @@ class Drone(interfaces.Pool):
         :return: true if no jobs are running on this drone, false else
         """
         return self._empty(self)
-
-    @property
-    def theoretical_available_resources(self):
-        """
-        Returns the amount of resources of the drone that were available if all jobs
-        used exactly the amount of resources they requested
-
-        :return: dictionary of theoretically available resources
-        """
-        return dict(self.resources.levels)
-
-    @property
-    def available_resources(self):
-        """
-        Returns the amount of resources of the drone that are available based on the
-        amount of resources the running jobs actually use.
-
-        :return: dictionary of available resources
-        """
-        return dict(self.used_resources.levels)
 
     async def run(self):
         """
@@ -146,30 +96,6 @@ class Drone(interfaces.Pool):
         async with Scope() as scope:
             async for job, kill in self._job_queue:
                 scope.do(self._run_job(job=job, kill=kill))
-
-    @property
-    def supply(self) -> float:
-        return self._supply
-
-    @property
-    def demand(self) -> float:
-        return 1
-
-    @demand.setter
-    def demand(self, value: float):
-        pass  # demand is always defined as 1
-
-    @property
-    def utilisation(self) -> float:
-        if self._utilisation is None:
-            self._init_allocation_and_utilisation()
-        return self._utilisation
-
-    @property
-    def allocation(self) -> float:
-        if self._allocation is None:
-            self._init_allocation_and_utilisation()
-        return self._allocation
 
     def _init_allocation_and_utilisation(self):
         levels = self.resources.levels
@@ -207,17 +133,7 @@ class Drone(interfaces.Pool):
 
         await (time + 1)
 
-    async def schedule_job(self, job: CachingJob, kill: bool = False):
-        """
-        A job is scheduled to a drone by putting it in the drone's job queue.
-
-        :param job: job that was matched to the drone
-        :param kill: flag, if true jobs can be killed if they use more resources
-            than they requested
-        """
-        await self._job_queue.put((job, kill))
-
-    async def _run_job(self, job: CachingJob, kill: bool):
+    async def _run_job(self, job: CachingJob, kill: bool):  # FIXME: needs adaptation
         """
         Method manages to start a job in the context of the given drone.
         The job is started regardless of the available resources. The resource
