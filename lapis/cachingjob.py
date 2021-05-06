@@ -139,25 +139,19 @@ class CachingJob(Job):
 
         # TODO: see unit test test_read_with_inputfiles ->  making
         #  information about hitrates obilgatory is actually necessary
-        if self._total_input_data:
+        if self._total_input_data > 0:
             self.expectation_cached_data = sum(
                 [
                     file["usedsize"] * sum(file["hitrates"].values())
                     for file in self.used_inputfiles.values()
                 ]
             )
+            self.cache_probability = (
+                self.expectation_cached_data / self._total_input_data
+            )
         else:
             self.expectation_cached_data = 0
             """amount of data that was read from the cache"""
-
-        if self._total_input_data:
-            self.cache_probability = sum(
-                [
-                    file["usedsize"] * sum(file["hitrates"].values())
-                    for file in self.used_inputfiles.values()
-                ]
-            ) / sum([file["usedsize"] for file in self.used_inputfiles.values()])
-        else:
             self.cache_probability = 0
 
         self.failed_matches = 0
