@@ -19,10 +19,10 @@ class StoredFile(object):
     def __init__(
         self,
         filename: str,
-        filesize: Optional[int] = None,
-        storedsize: Optional[int] = None,
-        cachedsince: Optional[int] = None,
-        lastaccessed: Optional[int] = None,
+        filesize: int = 0,
+        storedsize: int = 0,
+        cachedsince: Optional[float] = None,
+        lastaccessed: Optional[float] = None,
         numberofaccesses: int = 0,
         **filespecs,
     ):
@@ -44,7 +44,7 @@ class StoredFile(object):
         self.lastaccessed = lastaccessed
         self.numberofaccesses = numberofaccesses
 
-    def access(self, access_time: int):
+    def access(self, access_time: float):
         """
         Tracks a new access to the file at time `access_time`, including
         incrementing the access count.
@@ -62,13 +62,13 @@ class RequestedFile(object):
 
     __slots__ = ("filename", "filesize")
 
-    def __init__(self, filename: str, filesize: Optional[int]) -> None:
+    def __init__(self, filename: str, filesize: int) -> None:
         """name of the file"""
         self.filename = filename
         """size of the file"""
         self.filesize = filesize
 
-    def to_stored_file(self, currenttime: int) -> StoredFile:
+    def to_stored_file(self, currenttime: float) -> StoredFile:
         """
         Converts a requested file into a stored file
 
@@ -92,7 +92,7 @@ class RequestedFile_HitrateBased(RequestedFile):
 
     __slots__ = "cachehitrate"
 
-    def __init__(self, filename: str, filesize: Optional[int], cachehitrate: int):
+    def __init__(self, filename: str, filesize: int, cachehitrate: int):
         super().__init__(filename, filesize)
         """flag whether the file is cached, 1 if it is cached, 0 if it is not cached"""
         self.cachehitrate = cachehitrate

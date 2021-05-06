@@ -102,7 +102,7 @@ class StorageElement(Storage):
         sitename: Optional[str] = None,
         size: int = 1000 * 1000 * 1000 * 1000,
         throughput_limit: int = 10 * 1000 * 1000 * 1000,
-        files: Optional[dict] = None,
+        files: Optional[dict[str, StoredFile]] = None,
         deletion_duration: float = 5,
         update_duration: float = 1,
     ):
@@ -204,7 +204,9 @@ class StorageElement(Storage):
         :param file:
         :param job_repr:  Needed for debug output, will be replaced
         """
-        assert file.filename in self.files, f"File {file.filename} is not on storage"
+        assert (
+            file.filename in self.files if self.files else False
+        ), f"File {file.filename} is not on storage"
         await self.connection.transfer(file.filesize)
         try:
             # TODO: needs handling of KeyError
