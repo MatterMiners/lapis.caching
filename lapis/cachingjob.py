@@ -84,7 +84,7 @@ class CachingJob(Job):
         in_queue_since: float = 0,
         queue_date: float = 0,
         name: Optional[str] = None,
-        calculation_efficiency: Optional[float] = 1.0,
+        calculation_efficiency: float = 1.0,
     ):
         """
         Initialization of a job
