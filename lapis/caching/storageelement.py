@@ -98,11 +98,11 @@ class StorageElement(Storage):
 
     def __init__(
         self,
+        files: dict[str, StoredFile],
         name: Optional[str] = None,
         sitename: Optional[str] = None,
         size: int = 1000 * 1000 * 1000 * 1000,
         throughput_limit: int = 10 * 1000 * 1000 * 1000,
-        files: Optional[dict[str, StoredFile]] = None,
         deletion_duration: float = 5,
         update_duration: float = 1,
     ):
@@ -248,19 +248,19 @@ class HitrateStorage(StorageElement):
 
     def __init__(
         self,
+        files: dict[str, StoredFile],
         hitrate,
         name: Optional[str] = None,
         sitename: Optional[str] = None,
         size: int = 1000 * 1000 * 1000 * 1000,
         throughput_limit: int = 10 * 1000 * 1000 * 1000,
-        files: Optional[dict] = None,
     ):
         super(HitrateStorage, self).__init__(
+            files=files,
             name=name,
             sitename=sitename,
             size=size,
             throughput_limit=throughput_limit,
-            files=files,
         )
         self._hitrate = hitrate
         """global cache hitrate of this cache"""
@@ -335,18 +335,18 @@ class FileBasedHitrateStorage(StorageElement):
 
     def __init__(
         self,
+        files: dict[str, StoredFile],
         name: Optional[str] = None,
         sitename: Optional[str] = None,
         size: int = 1000 * 1000 * 1000 * 1000,
         throughput_limit: int = 10 * 1000 * 1000 * 1000,
-        files: Optional[dict] = None,
     ):
         super(FileBasedHitrateStorage, self).__init__(
+            files={},
             name=name,
             sitename=sitename,
             size=size,
             throughput_limit=throughput_limit,
-            files={},
         )
 
     @property

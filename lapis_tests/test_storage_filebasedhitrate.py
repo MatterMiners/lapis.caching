@@ -11,7 +11,7 @@ import pytest
 class TestFileBasedHitrateStorag:
     def test_storage_initialization(self):
         filebasedhitratestorage = FileBasedHitrateStorage(
-            name="name", sitename="site", size=200, throughput_limit=1
+            files={}, name="name", sitename="site", size=200, throughput_limit=1
         )
         assert filebasedhitratestorage.files == {}
         assert filebasedhitratestorage.name == "name"
@@ -25,7 +25,7 @@ class TestFileBasedHitrateStorag:
     @via_usim
     async def test_transfer(self):
         filebasedhitratestorage = FileBasedHitrateStorage(
-            name="name", sitename="site", size=200, throughput_limit=1
+            files={}, name="name", sitename="site", size=200, throughput_limit=1
         )
         requestedFile = RequestedFile_HitrateBased("filename", 20, 1)
         await filebasedhitratestorage.transfer(requestedFile)
@@ -37,21 +37,24 @@ class TestFileBasedHitrateStorag:
 
     def test_find_file_in_storage(self):
         filebasedhitratestorage = FileBasedHitrateStorage(
-            name="name", sitename="site", size=200, throughput_limit=1
+            files={}, name="name", sitename="site", size=200, throughput_limit=1
         )
         requestedFile = RequestedFile_HitrateBased("filename", 20, 1)
         foundFile = LookUpInformation(20, filebasedhitratestorage)
 
         assert filebasedhitratestorage.find(requestedFile) == foundFile
 
-    def test_modification_of_stored_files(self):
+    @via_usim
+    async def test_modification_of_stored_files(self):
         filebasedhitratestorage = FileBasedHitrateStorage(
-            name="name", sitename="site", size=200, throughput_limit=1
+            files={}, name="name", sitename="site", size=200, throughput_limit=1
         )
         requestedFile = RequestedFile_HitrateBased("filename", 20, 1)
 
-        filebasedhitratestorage.add(requestedFile)
+        await filebasedhitratestorage.add(requestedFile)
         assert filebasedhitratestorage.files == {}
 
-        filebasedhitratestorage.remove(requestedFile)
+        stored_file = requestedFile.to_stored_file(time.now)
+
+        await filebasedhitratestorage.remove(stored_file)
         assert filebasedhitratestorage.files == {}
