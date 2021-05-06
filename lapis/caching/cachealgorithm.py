@@ -31,17 +31,18 @@ def delete_oldest(
 
 def delete_oldest_few_used(
     file: RequestedFile, storage: StorageElement
-) -> Tuple[bool, Optional[Tuple[StoredFile]]]:
-    deletable_files = []
+) -> Tuple[bool, Optional[Tuple[StoredFile, ...]]]:
     currently_free = storage.available
-    if currently_free < storage.available:
-        sorted_files = sort_files_by_cachedsince(storage.files.items())
-        for current_file in sorted_files:
-            if current_file.numberofaccesses < 3:
-                deletable_files.append(current_file)
-                currently_free += deletable_files[-1].filesize
-                if currently_free >= file.filesize:
-                    return True, tuple(deletable_files)
+    if currently_free >= file.filesize:
+        return True, None
+    deletable_files = []
+    sorted_files = sort_files_by_cachedsince(storage.files.values())
+    for current_file in sorted_files:
+        if current_file.numberofaccesses < 3:
+            deletable_files.append(current_file)
+            currently_free += current_file.filesize
+            if currently_free >= file.filesize:
+                return True, tuple(deletable_files)
     return False, None
 
 
@@ -54,7 +55,7 @@ class CacheAlgorithm(object):
 
     def consider(
         self, file: RequestedFile, storage: StorageElement
-    ) -> Tuple[bool, Optional[Tuple[StoredFile]]]:
+    ) -> Tuple[bool, Optional[Tuple[StoredFile, ...]]]:
         if self._caching_strategy(file, storage):
             return self._deletion_strategy(file, storage)
         return False, None
