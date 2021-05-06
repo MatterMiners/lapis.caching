@@ -189,7 +189,9 @@ class Connection(object):
             )
             # TODO: should be 1 in case of requested_bytes == 0
             hitrate = cached_bytes / requested_bytes if requested_bytes > 0 else 0
-            provides_file = int(random.random() < hitrate)
+        else:
+            hitrate = 0
+        provides_file = int(random.random() < hitrate)
         # TODO: In which cases is hitrate not defined and how can they be covered? I
         #   think that in this case this code should not be reached but I'm unsure
         #   right now
