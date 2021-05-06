@@ -1,4 +1,4 @@
-from typing import Optional, NamedTuple
+from typing import Optional
 
 
 class StoredFile(object):
@@ -55,15 +55,18 @@ class StoredFile(object):
         self.numberofaccesses += 1
 
 
-class RequestedFile(NamedTuple):
+class RequestedFile(object):
     """
     Representation of a requested file
     """
 
-    filename: str
-    """name of the file"""
-    filesize: Optional[int] = None
-    """size of the file"""
+    __slots__ = ("filename", "filesize")
+
+    def __init__(self, filename: str, filesize: Optional[int]) -> None:
+        """name of the file"""
+        self.filename = filename
+        """size of the file"""
+        self.filesize = filesize
 
     def to_stored_file(self, currenttime: int) -> StoredFile:
         """
@@ -80,16 +83,16 @@ class RequestedFile(NamedTuple):
         )
 
 
-class RequestedFile_HitrateBased(NamedTuple):
+class RequestedFile_HitrateBased(RequestedFile):
     """
     Represents a requested file in hitrate based caching.
     The cachehitrate flag is somewhat messed up currently.
     **Its use should be reworked when remodeling the connection module.**
     """
 
-    filename: str
-    """name of the requested file"""
-    filesize: int
-    """size of the requested file"""
-    cachehitrate: int
-    """flag whether the file is cached, 1 if it is cached, 0 if it is not cached"""
+    __slots__ = "cachehitrate"
+
+    def __init__(self, filename: str, filesize: Optional[int], cachehitrate: int):
+        super().__init__(filename, filesize)
+        """flag whether the file is cached, 1 if it is cached, 0 if it is not cached"""
+        self.cachehitrate = cachehitrate
