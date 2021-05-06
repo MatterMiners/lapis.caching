@@ -15,15 +15,18 @@ def check_relevance(file: RequestedFile, storage: StorageElement):
 
 def delete_oldest(
     file: RequestedFile, storage: StorageElement
-) -> Tuple[bool, Tuple[StoredFile]]:
-    deletable_files = []
+) -> Tuple[bool, Optional[Tuple[StoredFile, ...]]]:
     currently_free = storage.available
-    if currently_free < storage.available:
-        sorted_files = sort_files_by_cachedsince(storage.files.items())
-        while currently_free < file.filesize:
-            deletable_files.append(next(sorted_files))
-            currently_free += deletable_files[-1].filesize
-    return True, tuple(deletable_files)
+    if currently_free >= file.filesize:
+        return True, None
+    deletable_files = []
+    sorted_files = sort_files_by_cachedsince(storage.files.values())
+    for current_file in sorted_files:
+        deletable_files.append(current_file)
+        currently_free += current_file.filesize
+        if currently_free >= file.filesize:
+            return True, tuple(deletable_files)
+    return False, None
 
 
 def delete_oldest_few_used(
