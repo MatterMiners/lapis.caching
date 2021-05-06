@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Iterable
 
 from lapis.caching.files import StoredFile
 
 
-def sort_files_by_cachedsince(stored_files: set) -> List[StoredFile]:
-    return sorted(list(stored_files), key=lambda x: x.cachedsince)
+def sort_files_by_cachedsince(stored_files: Iterable[StoredFile]) -> List[StoredFile]:
+    return sorted(stored_files, key=lambda x: x.cachedsince)
 
 
 # async def fifo(size, storage):
