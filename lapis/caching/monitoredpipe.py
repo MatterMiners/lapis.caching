@@ -20,10 +20,10 @@ class MonitoredPipe(Pipe):
         super().__init__(throughput)
         self._monitor = Notification()
         self._monitor_buffers: Dict[Any, Deque[MonitoredPipeInfo]] = {}
-        self.storage = None
+        self.storage: Optional[str] = None
         """storage object the pipe simulates the network connection for, for monitoring
         purposes"""
-        self.transferred_data = 0
+        self.transferred_data: float = 0
         """total amount of data transferred by the pipe, for monitoring purposes"""
 
     async def load(self) -> AsyncIterable[MonitoredPipeInfo]:

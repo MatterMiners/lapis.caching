@@ -144,7 +144,7 @@ class StorageElement(Storage):
         connection**"""
         self.connection.storage = repr(self)
 
-        self.remote_storage = None
+        self.remote_storage: Optional[RemoteStorage] = None
         """remote storage that provides files that are not stored in the cache"""
 
     @property

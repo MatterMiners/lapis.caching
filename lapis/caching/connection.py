@@ -42,7 +42,7 @@ class Connection(object):
         "_filebased_caching",
     )
 
-    def __init__(self, throughput, filebased_caching=True):
+    def __init__(self, throughput: float, filebased_caching: bool = True):
         """
         Initialization of the connection object
         :param throughput: throughput of the connection's remote storage
@@ -124,7 +124,7 @@ class Connection(object):
         return self.remote_connection
 
     async def stream_file(
-        self, requested_file: RequestedFile, dronesite
+        self, requested_file: RequestedFile, dronesite: Optional[str]
     ) -> TransferStatistics:
         """
         Determines which storage object is used to provide the requested file and
@@ -162,7 +162,7 @@ class Connection(object):
 
     async def transfer_files(
         self, drone, requested_files: dict
-    ) -> Tuple[int, int, int, int]:
+    ) -> Tuple[float, int, int, int]:
         """
         Converts dict information about requested files to RequestedFile object and
         sequentially streams all files.

@@ -23,7 +23,7 @@ class StoredFile(object):
         storedsize: Optional[int] = None,
         cachedsince: Optional[int] = None,
         lastaccessed: Optional[int] = None,
-        numberofaccesses: Optional[int] = None,
+        numberofaccesses: int = 0,
         **filespecs,
     ):
         """
