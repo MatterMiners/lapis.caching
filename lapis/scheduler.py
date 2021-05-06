@@ -1,7 +1,18 @@
 import random
 from abc import ABC, abstractmethod
 from statistics import mean
-from typing import Dict, Iterator, Tuple, List, TypeVar, Generic, Set, NamedTuple, Any
+from typing import (
+    Dict,
+    Iterator,
+    Optional,
+    Tuple,
+    List,
+    TypeVar,
+    Generic,
+    Set,
+    NamedTuple,
+    Any,
+)
 from weakref import WeakKeyDictionary
 
 from sortedcontainers import SortedDict
@@ -346,7 +357,7 @@ class CondorJobScheduler(JobScheduler):
         else:
             await self._stream_queue.put(job)
 
-    def _schedule_job(self, job) -> Drone:
+    def _schedule_job(self, job) -> Optional[Drone]:
         priorities = {}
         for cluster in self.drone_cluster:
             drone = cluster[0]
