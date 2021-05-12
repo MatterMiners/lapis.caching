@@ -138,7 +138,7 @@ class Simulator(object):
     def create_scheduler(self, scheduler_type):
         self.job_scheduler = scheduler_type(job_queue=self.job_queue)
 
-    def create_connection_module(self, remote_throughput, filebased_caching=True):
+    def create_connection_module(self, remote_throughput, filebased_caching=False):
         self.connection = Connection(remote_throughput, filebased_caching)
 
     def run(self, until=None):
