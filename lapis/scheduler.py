@@ -246,14 +246,13 @@ class JobScheduler(ABC):
 class CondorJobScheduler(JobScheduler):
     """
     Goal of the htcondor job scheduler is to have a scheduler that somehow
-    mimics how htcondor does schedule jobs.
-    Htcondor does scheduling based on a priority queue. The priorities itself
+    mimics how htcondor schedules jobs.
+    Htcondor is scheduling based on a priority queue. The priorities itself
     are managed by operators of htcondor.
     So different instances can apparently behave very different.
-    In my case I am going to try building a priority queue that sorts job slots
-    by increasing cost. The cost itself is calculated based on the current
-    strategy that is used at GridKa. The scheduler checks if a job either
-    exactly fits a slot or if it does fit into it several times. The cost for
+    A priority queue that sorts job slots
+    by increasing costs is built. The scheduler checks if a job either
+    exactly fits a slot or if it fits several times. The cost for
     putting a job at a given slot is given by the amount of resources that
     might remain unallocated.
     """
@@ -673,9 +672,8 @@ class CondorClassadJobScheduler(JobScheduler):
     Htcondor does scheduling based on a priority queue. The priorities itself
     are managed by operators of htcondor.
     So different instances can apparently behave very different.
-    In my case I am going to try building a priority queue that sorts job slots
-    by increasing cost. The cost itself is calculated based on the current
-    strategy that is used at GridKa. The scheduler checks if a job either
+    In this case a priority queue that sorts job slots
+    by increasing cost is built. The scheduler checks if a job either
     exactly fits a slot or if it does fit into it several times. The cost for
     putting a job at a given slot is given by the amount of resources that
     might remain unallocated.
