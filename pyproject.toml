@@ -55,3 +55,6 @@ test = [
     "flake8-bugbear",
     "black"
 ]
+
+[tool.poetry.scripts]
+simulate = 'lapis.cli.simulate:cli'
