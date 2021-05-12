@@ -18,7 +18,7 @@ from lapis.storage_io.storage import (
     storage_reader_filebased_hitrate_caching,
 )
 
-from lapis.scheduler import CondorClassadJobScheduler
+from lapis.scheduler import CondorClassadJobScheduler, machine_ad_defaults, job_ad_defaults
 from lapis.simulator import Simulator
 
 
@@ -27,16 +27,16 @@ from lapis.monitor.timefilter import SimulationTimeFilter
 
 from time import time
 
-pre_job_rank_defaults = "0"
+pre_job_rank_default = "0"
 
-machine_ad_defaults = """
-    requirements = target.requestcpus <= my.cpus
-    rank = 1
-    """.strip()
+# machine_ad_defaults = """
+#     requirements = target.requestcpus <= my.cpus
+#     rank = 1
+#     """.strip()
 
-job_ad_defaults = """
-requirements = my.requestcpus <= target.cpus && my.requestmemory <= target.memory
-rank = 0"""
+# job_ad_defaults = """
+# requirements = my.requestcpus <= target.cpus && my.requestmemory <= target.memory
+# rank = 0"""
 
 last_step = 0
 
@@ -75,7 +75,7 @@ def ini_and_run(
     until=None,
     calculation_efficiency=1.0,
     log_telegraf=False,
-    pre_job_rank=pre_job_rank_defaults,
+    pre_job_rank=pre_job_rank_default,
     machine_ads=machine_ad_defaults,
     job_ads=job_ad_defaults,
     additional_identifier=None,
