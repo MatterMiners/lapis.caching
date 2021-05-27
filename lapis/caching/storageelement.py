@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, Optional
 
 from usim import time, Resources, Scope
 from lapis.caching.monitoredpipe import MonitoredPipe
@@ -98,7 +98,7 @@ class StorageElement(Storage):
 
     def __init__(
         self,
-        files: dict[str, StoredFile],
+        files: Dict[str, StoredFile],
         name: Optional[str] = None,
         sitename: Optional[str] = None,
         size: int = 1000 * 1000 * 1000 * 1000,
@@ -248,7 +248,7 @@ class HitrateStorage(StorageElement):
 
     def __init__(
         self,
-        files: dict[str, StoredFile],
+        files: Dict[str, StoredFile],
         hitrate,
         name: Optional[str] = None,
         sitename: Optional[str] = None,
@@ -335,7 +335,7 @@ class FileBasedHitrateStorage(StorageElement):
 
     def __init__(
         self,
-        files: dict[str, StoredFile],
+        files: Dict[str, StoredFile],
         name: Optional[str] = None,
         sitename: Optional[str] = None,
         size: int = 1000 * 1000 * 1000 * 1000,
