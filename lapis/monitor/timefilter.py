@@ -11,5 +11,5 @@ class SimulationTimeFilter(logging.Filter):
 
     def filter(self, record) -> bool:
         # record.created = time.now
-        record.created = time.now + (1e-9 * __LOOP_STATE__.LOOP.turn)
+        record.created = time.now + (1e-9 * __LOOP_STATE__.loop.turn)
         return True
