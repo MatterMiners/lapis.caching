@@ -286,7 +286,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
 @click.option("--filebased_caching", "filebased_caching", is_flag=True, help="Flag to set filebased caching on/off", default=False)
 @click.option("--cache-hitrate", "cache_hitrate", type=float, default=None)
 @click.pass_context
-def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, job_file, static_pool_files, dynamic_pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
+def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, static_pool_files, dynamic_pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
     click.echo("starting hybrid environment")
     simulator = Simulator(seed=ctx.obj["seed"])
     file, file_type = job_file
