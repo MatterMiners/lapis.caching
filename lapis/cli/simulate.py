@@ -24,7 +24,7 @@ last_step = 0
 
 job_import_mapper = {"htcondor": htcondor_job_reader, "swf": swf_job_reader}
 
-scheduler_choices = (CondorJobScheduler, CondorClassadJobScheduler)
+scheduler_import_mapper = {"condor_simplified": CondorJobScheduler, "condor_classad": CondorClassadJobScheduler}
 
 pool_import_mapper = {"htcondor": htcondor_pool_reader}
 
@@ -84,7 +84,7 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
 @click.option(
     "--scheduler_type",
     "scheduler_type",
-    type=click.Choice(list(scheduler_choices)),
+    type=click.Choice(list(scheduler_import_mapper.keys())),
 )
 @click.option(
     "--pool-files",
@@ -126,7 +126,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
     
-    if scheduler_type == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -134,7 +134,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
             job_ad=job_ads,
         )
     else:
-        simulator.create_scheduler(scheduler_type=scheduler_type)
+        simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
 
     if all(storage_files):
         simulator.create_connection_module(remote_throughput, filebased_caching)
@@ -170,7 +170,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
 @click.option(
     "--scheduler_type",
     "scheduler_type",
-    type=click.Choice(list(scheduler_choices)),
+    type=click.Choice(list(scheduler_import_mapper.keys())),
 )
 @click.option(
     "--pool-files",
@@ -212,7 +212,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
     
-    if scheduler_type == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -220,7 +220,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
             job_ad=job_ads,
         )
     else:
-        simulator.create_scheduler(scheduler_type=scheduler_type)
+        simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
 
     if all(storage_files):
         simulator.create_connection_module(remote_throughput, filebased_caching)
@@ -257,7 +257,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
 @click.option(
     "--scheduler_type",
     "scheduler_type",
-    type=click.Choice(list(scheduler_choices)),
+    type=click.Choice(list(scheduler_import_mapper.keys())),
 )
 @click.option(
     "--static-pool-files",
@@ -305,7 +305,7 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
     
-    if scheduler_type == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -313,7 +313,7 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
             job_ad=job_ads,
         )
     else:
-        simulator.create_scheduler(scheduler_type=scheduler_type)
+        simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
 
     if all(storage_files):
         simulator.create_connection_module(remote_throughput, filebased_caching)
