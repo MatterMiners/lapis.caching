@@ -137,26 +137,18 @@ def ini_and_run(
 
     for pool_file in pool_files:
         with open(pool_file, "r") as pool_file:
-            pool_file_type = "htcondor"
-            if "dummycluster" in pool_file.name:
-                # Attention: dummy_pool_connection is currently not part of
-                # monitoring as it is not known within the simulator itself
-                # TODO: do you need this in monitoring?
-                create_pool_in_simulator(
-                    simulator=simulator,
-                    pool_input=pool_file,
-                    pool_reader=pool_import_mapper[pool_file_type],
-                    pool_type=StaticPool,
-                    connection=dummy_pool_connection,
-                )
-            else:
-                create_pool_in_simulator(
-                    simulator=simulator,
-                    pool_input=pool_file,
-                    pool_reader=pool_import_mapper[pool_file_type],
-                    pool_type=StaticPool,
-                    connection=simulator.connection,
-                )
+            # Attention: dummy_pool_connection is currently not part of
+            # monitoring as it is not known within the simulator itself
+            # TODO: do you need this in monitoring?
+            create_pool_in_simulator(
+                simulator=simulator,
+                pool_input=pool_file,
+                pool_reader=pool_import_mapper["htcondor"],
+                pool_type=StaticPool,
+                connection=dummy_pool_connection
+                if "dummycluster" in pool_file.name
+                else simulator.connection,
+            )
 
     simulator.enable_monitoring()
 
