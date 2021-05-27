@@ -43,7 +43,7 @@ fixed value"""
 @click.option("--log-tcp", "log_tcp", is_flag=True)
 @click.option("--log-file", "log_file", type=click.File("w"))
 @click.option("--log-telegraf", "log_telegraf", is_flag=True)
-@click.option("--calculation-efficiency", type=float)
+@click.option("--calculation-efficiency", type=float, default=1.0)
 @click.pass_context
 def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficiency):
     ctx.ensure_object(dict)
@@ -78,7 +78,7 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
     "job_file",
     type=(click.File("r"), click.Choice(list(job_import_mapper.keys()))),
 )
-@click.option("--pre_job_rank", "pre_job_rank", type=str, default=None)
+@click.option("--pre-job-rank", "pre_job_rank", type=str, default=None)
 @click.option("--machine-ads", "machine_ads", type=str, default=None)
 @click.option("--job-ads", "job_ads", type=str, default=None)
 @click.option(
@@ -91,6 +91,7 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
     "pool_files",
     type=(click.File("r"), click.Choice(list(pool_import_mapper.keys()))),
     multiple=True,
+    help="Tuple of `(pool_file,pool_file_type)`",
 )
 @click.option(
     "--storage-files",
@@ -101,6 +102,7 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
         click.Choice(list(storage_import_mapper.keys())),
     ),
     default=(None, None, None),
+    multiple=True,
     help="Tuple of `(storage_file,storage_content_file,storage_type)`",
 )
 @click.option("--remote-throughput", "remote_throughput", type=float, default=10, help="Parameter to set the network bandwidth to remote")
@@ -110,9 +112,9 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
 def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
     click.echo("starting static environment")
     simulator = Simulator(seed=ctx.obj["seed"])
-    file, file_type = job_file
+    infile, file_type = job_file
     simulator.create_job_generator(
-        job_input=open(file, "r"),
+        job_input=open(infile, "r"),
         job_reader=partial(
             job_import_mapper[file_type],
             calculation_efficiency=ctx.obj["calculation_efficiency"],
@@ -164,7 +166,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
     "job_file",
     type=(click.File("r"), click.Choice(list(job_import_mapper.keys()))),
 )
-@click.option("--pre_job_rank", "pre_job_rank", type=str, default=None)
+@click.option("--pre-job-rank", "pre_job_rank", type=str, default=None)
 @click.option("--machine-ads", "machine_ads", type=str, default=None)
 @click.option("--job-ads", "job_ads", type=str, default=None)
 @click.option(
@@ -177,6 +179,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
     "pool_files",
     type=(click.File("r"), click.Choice(list(pool_import_mapper.keys()))),
     multiple=True,
+    help="Tuple of `(pool_file,pool_file_type)`",
 )
 @click.option(
     "--storage-files",
@@ -187,6 +190,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
         click.Choice(list(storage_import_mapper.keys())),
     ),
     default=(None, None, None),
+    multiple=True,
     help="Tuple of `(storage_file,storage_content_file,storage_type)`",
 )
 @click.option("--remote-throughput", "remote_throughput", type=float, default=10, help="Parameter to set the network bandwidth to remote")
@@ -196,9 +200,9 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
 def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
     click.echo("starting dynamic environment")
     simulator = Simulator(seed=ctx.obj["seed"])
-    file, file_type = job_file
+    infile, file_type = job_file
     simulator.create_job_generator(
-        job_input=open(file, "r"),
+        job_input=open(infile, "r"),
         job_reader=partial(
             job_import_mapper[file_type],
             calculation_efficiency=ctx.obj["calculation_efficiency"],
@@ -251,7 +255,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
     "job_file",
     type=(click.File("r"), click.Choice(list(job_import_mapper.keys()))),
 )
-@click.option("--pre_job_rank", "pre_job_rank", type=str, default=None)
+@click.option("--pre-job-rank", "pre_job_rank", type=str, default=None)
 @click.option("--machine-ads", "machine_ads", type=str, default=None)
 @click.option("--job-ads", "job_ads", type=str, default=None)
 @click.option(
@@ -264,12 +268,14 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
     "static_pool_files",
     type=(click.File("r"), click.Choice(list(pool_import_mapper.keys()))),
     multiple=True,
+    help="Tuple of `(static_pool_file,static_pool_file_type)`",
 )
 @click.option(
     "--dynamic-pool-files",
     "dynamic_pool_files",
     type=(click.File("r"), click.Choice(list(pool_import_mapper.keys()))),
     multiple=True,
+    help="Tuple of `(dynamic_pool_file,dynamic_pool_file_type)`",
 )
 @click.option(
     "--storage-files",
@@ -280,6 +286,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
         click.Choice(list(storage_import_mapper.keys())),
     ),
     default=(None, None, None),
+    multiple=True,
     help="Tuple of `(storage_file,storage_content_file,storage_type)`",
 )
 @click.option("--remote-throughput", "remote_throughput", type=float, default=10, help="Parameter to set the network bandwidth to remote")
@@ -289,9 +296,9 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
 def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, static_pool_files, dynamic_pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
     click.echo("starting hybrid environment")
     simulator = Simulator(seed=ctx.obj["seed"])
-    file, file_type = job_file
+    infile, file_type = job_file
     simulator.create_job_generator(
-        job_input=open(file, "r"),
+        job_input=open(infile, "r"),
         job_reader=partial(
             job_import_mapper[file_type],
             calculation_efficiency=ctx.obj["calculation_efficiency"],
