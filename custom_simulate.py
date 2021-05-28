@@ -18,11 +18,8 @@ from lapis.storage_io.storage import (
     storage_reader_filebased_hitrate_caching,
 )
 
-from lapis.scheduler import (
-    CondorClassadJobScheduler,
-    machine_ad_defaults,
-    job_ad_defaults,
-)
+from lapis.scheduler import CondorClassadJobScheduler,
+
 from lapis.simulator import Simulator
 
 from lapis.monitor.core import LoggingUDPSocketHandler
@@ -32,14 +29,15 @@ from time import time
 
 pre_job_rank_default = "0"
 
-# machine_ad_defaults = """
-#     requirements = target.requestcpus <= my.cpus
-#     rank = 1
-#     """.strip()
+machine_ad_defaults = """
+    requirements = target.requestcpus <= my.cpus
+    rank = 1
+    """.strip()
 
-# job_ad_defaults = """
-# requirements = my.requestcpus <= target.cpus && my.requestmemory <= target.memory
-# rank = 0"""
+job_ad_defaults = """
+    requirements = my.requestcpus <= target.cpus && my.requestmemory <= target.memory
+    rank = 0
+    """.strip()
 
 last_step = 0
 
