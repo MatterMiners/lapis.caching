@@ -127,8 +127,8 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
         "\tmachine classads:\n \t{}\n\n"
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
-    
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
+
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank, machine_ads, job_ads)):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -146,7 +146,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,   #TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,   # TODO: Generalize this to any kind of storage
         )
     for current_pool in pool_files:
         pool_file, pool_file_type = current_pool
@@ -216,8 +216,8 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
         "\tmachine classads:\n \t{}\n\n"
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
-    
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
+
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank, machine_ads, job_ads)):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -227,14 +227,15 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
     else:
         simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
 
-    if all(storage_files):
+    for current_storage_files in storage_files:
+        assert all(current_storage_files), "All storage inputs have to be set"
         simulator.create_connection_module(remote_throughput, filebased_caching)
-        storage_file, storage_content_file, storage_type = storage_files
+        storage_file, storage_content_file, storage_type = current_storage_files
         simulator.create_storage(
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,   #TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,   # TODO: Generalize this to any kind of storage
         )
     for current_pool in pool_files:
         pool_file, pool_file_type = current_pool
@@ -312,8 +313,8 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
         "\tmachine classads:\n \t{}\n\n"
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
-    
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank,machine_ads,job_ads)):
+
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank, machine_ads, job_ads)):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -323,14 +324,15 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
     else:
         simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
 
-    if all(storage_files):
+    for current_storage_files in storage_files:
+        assert all(current_storage_files), "All storage inputs have to be set"
         simulator.create_connection_module(remote_throughput, filebased_caching)
-        storage_file, storage_content_file, storage_type = storage_files
+        storage_file, storage_content_file, storage_type = current_storage_files
         simulator.create_storage(
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,   #TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,   # TODO: Generalize this to any kind of storage
         )
     for current_pool in static_pool_files:
         pool_file, pool_file_type = current_pool
