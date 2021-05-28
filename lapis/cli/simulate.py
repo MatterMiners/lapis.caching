@@ -115,7 +115,7 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
     "--remote-throughput",
     "remote_throughput",
     type=float,
-    default=10,
+    default=1.0,
     help="Parameter to set the network bandwidth to remote",
 )
 @click.option(
@@ -232,7 +232,7 @@ def static(
     "--remote-throughput",
     "remote_throughput",
     type=float,
-    default=10,
+    default=1.0,
     help="Parameter to set the network bandwidth to remote",
 )
 @click.option(
