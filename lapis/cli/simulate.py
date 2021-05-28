@@ -180,7 +180,7 @@ def static(
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this
         )
     for current_pool in pool_files:
         pool_file, pool_file_type = current_pool
@@ -297,7 +297,7 @@ def dynamic(
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this
         )
     for current_pool in pool_files:
         pool_file, pool_file_type = current_pool
@@ -423,7 +423,7 @@ def hybrid(
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this
         )
     for current_pool in static_pool_files:
         pool_file, pool_file_type = current_pool
