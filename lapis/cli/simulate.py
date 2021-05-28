@@ -138,10 +138,10 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
     else:
         simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
 
-    if all(storage_files):
+    for current_storage_files in storage_files:
+        assert all(current_storage_files), "All storage inputs have to be set"
         simulator.create_connection_module(remote_throughput, filebased_caching)
-        print("Storage files: ", storage_files)
-        storage_file, storage_content_file, storage_type = storage_files
+        storage_file, storage_content_file, storage_type = current_storage_files
         simulator.create_storage(
             storage_input=storage_file,
             storage_content_input=storage_content_file,
