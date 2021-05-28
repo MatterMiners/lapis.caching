@@ -12,7 +12,10 @@ from lapis.pool import StaticPool, Pool
 from lapis.pool_io.htcondor import htcondor_pool_reader
 from lapis.job_io.swf import swf_job_reader
 from lapis.caching.storageelement import FileBasedHitrateStorage
-from lapis.storage_io.storage import storage_reader, storage_reader_filebased_hitrate_caching
+from lapis.storage_io.storage import (
+    storage_reader,
+    storage_reader_filebased_hitrate_caching,
+)
 
 from lapis.scheduler import CondorJobScheduler, CondorClassadJobScheduler
 from lapis.simulator import Simulator
@@ -24,7 +27,10 @@ last_step = 0
 
 job_import_mapper = {"htcondor": htcondor_job_reader, "swf": swf_job_reader}
 
-scheduler_import_mapper = {"condor_simplified": CondorJobScheduler, "condor_classad": CondorClassadJobScheduler}
+scheduler_import_mapper = {
+    "condor_simplified": CondorJobScheduler,
+    "condor_classad": CondorClassadJobScheduler,
+}
 
 pool_import_mapper = {"htcondor": htcondor_pool_reader}
 
@@ -105,11 +111,35 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
     multiple=True,
     help="Tuple of `(storage_file,storage_content_file,storage_type)`",
 )
-@click.option("--remote-throughput", "remote_throughput", type=float, default=10, help="Parameter to set the network bandwidth to remote")
-@click.option("--filebased_caching", "filebased_caching", is_flag=True, help="Flag to set filebased caching on/off", default=False)
+@click.option(
+    "--remote-throughput",
+    "remote_throughput",
+    type=float,
+    default=10,
+    help="Parameter to set the network bandwidth to remote",
+)
+@click.option(
+    "--filebased_caching",
+    "filebased_caching",
+    is_flag=True,
+    help="Flag to set filebased caching on/off",
+    default=False,
+)
 @click.option("--cache-hitrate", "cache_hitrate", type=float, default=None)
 @click.pass_context
-def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
+def static(
+    ctx,
+    job_file,
+    pre_job_rank,
+    machine_ads,
+    job_ads,
+    scheduler_type,
+    pool_files,
+    storage_files,
+    remote_throughput,
+    filebased_caching,
+    cache_hitrate,
+):
     click.echo("starting static environment")
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
@@ -128,7 +158,9 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
 
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank, machine_ads, job_ads)):
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any(
+        (pre_job_rank, machine_ads, job_ads)
+    ):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -136,7 +168,9 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
             job_ad=job_ads,
         )
     else:
-        simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
+        simulator.create_scheduler(
+            scheduler_type=scheduler_import_mapper[scheduler_type]
+        )
 
     for current_storage_files in storage_files:
         assert all(current_storage_files), "All storage inputs have to be set"
@@ -146,7 +180,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,   # TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this to any kind of storage
         )
     for current_pool in pool_files:
         pool_file, pool_file_type = current_pool
@@ -194,11 +228,35 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
     multiple=True,
     help="Tuple of `(storage_file,storage_content_file,storage_type)`",
 )
-@click.option("--remote-throughput", "remote_throughput", type=float, default=10, help="Parameter to set the network bandwidth to remote")
-@click.option("--filebased_caching", "filebased_caching", is_flag=True, help="Flag to set filebased caching on/off", default=False)
+@click.option(
+    "--remote-throughput",
+    "remote_throughput",
+    type=float,
+    default=10,
+    help="Parameter to set the network bandwidth to remote",
+)
+@click.option(
+    "--filebased_caching",
+    "filebased_caching",
+    is_flag=True,
+    help="Flag to set filebased caching on/off",
+    default=False,
+)
 @click.option("--cache-hitrate", "cache_hitrate", type=float, default=None)
 @click.pass_context
-def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
+def dynamic(
+    ctx,
+    job_file,
+    pre_job_rank,
+    machine_ads,
+    job_ads,
+    scheduler_type,
+    pool_files,
+    storage_files,
+    remote_throughput,
+    filebased_caching,
+    cache_hitrate,
+):
     click.echo("starting dynamic environment")
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
@@ -217,7 +275,9 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
 
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank, machine_ads, job_ads)):
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any(
+        (pre_job_rank, machine_ads, job_ads)
+    ):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -225,7 +285,9 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
             job_ad=job_ads,
         )
     else:
-        simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
+        simulator.create_scheduler(
+            scheduler_type=scheduler_import_mapper[scheduler_type]
+        )
 
     for current_storage_files in storage_files:
         assert all(current_storage_files), "All storage inputs have to be set"
@@ -235,7 +297,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,   # TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this to any kind of storage
         )
     for current_pool in pool_files:
         pool_file, pool_file_type = current_pool
@@ -291,11 +353,36 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
     multiple=True,
     help="Tuple of `(storage_file,storage_content_file,storage_type)`",
 )
-@click.option("--remote-throughput", "remote_throughput", type=float, default=10, help="Parameter to set the network bandwidth to remote")
-@click.option("--filebased_caching", "filebased_caching", is_flag=True, help="Flag to set filebased caching on/off", default=False)
+@click.option(
+    "--remote-throughput",
+    "remote_throughput",
+    type=float,
+    default=10,
+    help="Parameter to set the network bandwidth to remote",
+)
+@click.option(
+    "--filebased_caching",
+    "filebased_caching",
+    is_flag=True,
+    help="Flag to set filebased caching on/off",
+    default=False,
+)
 @click.option("--cache-hitrate", "cache_hitrate", type=float, default=None)
 @click.pass_context
-def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, static_pool_files, dynamic_pool_files, storage_files, remote_throughput, filebased_caching, cache_hitrate):
+def hybrid(
+    ctx,
+    job_file,
+    pre_job_rank,
+    machine_ads,
+    job_ads,
+    scheduler_type,
+    static_pool_files,
+    dynamic_pool_files,
+    storage_files,
+    remote_throughput,
+    filebased_caching,
+    cache_hitrate,
+):
     click.echo("starting hybrid environment")
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
@@ -314,7 +401,9 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
         "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
 
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any((pre_job_rank, machine_ads, job_ads)):
+    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any(
+        (pre_job_rank, machine_ads, job_ads)
+    ):
         simulator.job_scheduler = CondorClassadJobScheduler(
             job_queue=simulator.job_queue,
             pre_job_rank=pre_job_rank,
@@ -322,7 +411,9 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
             job_ad=job_ads,
         )
     else:
-        simulator.create_scheduler(scheduler_type=scheduler_import_mapper[scheduler_type])
+        simulator.create_scheduler(
+            scheduler_type=scheduler_import_mapper[scheduler_type]
+        )
 
     for current_storage_files in storage_files:
         assert all(current_storage_files), "All storage inputs have to be set"
@@ -332,7 +423,7 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
             storage_input=storage_file,
             storage_content_input=storage_content_file,
             storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,   # TODO: Generalize this to any kind of storage
+            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this to any kind of storage
         )
     for current_pool in static_pool_files:
         pool_file, pool_file_type = current_pool

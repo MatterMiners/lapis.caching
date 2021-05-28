@@ -420,7 +420,7 @@ class RankedClusters(Generic[DJ]):
 
     @abstractmethod
     def empty(self) -> bool:
-        """"Whether there are no resources available"""
+        """Whether there are no resources available"""
         raise NotImplementedError
 
     @abstractmethod
