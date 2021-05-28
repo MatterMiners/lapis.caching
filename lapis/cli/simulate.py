@@ -82,7 +82,7 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
 @click.option("--machine-ads", "machine_ads", type=str, default=None)
 @click.option("--job-ads", "job_ads", type=str, default=None)
 @click.option(
-    "--scheduler_type",
+    "--scheduler-type",
     "scheduler_type",
     type=click.Choice(list(scheduler_import_mapper.keys())),
 )
@@ -140,6 +140,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
 
     if all(storage_files):
         simulator.create_connection_module(remote_throughput, filebased_caching)
+        print("Storage files: ", storage_files)
         storage_file, storage_content_file, storage_type = storage_files
         simulator.create_storage(
             storage_input=storage_file,
@@ -170,7 +171,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
 @click.option("--machine-ads", "machine_ads", type=str, default=None)
 @click.option("--job-ads", "job_ads", type=str, default=None)
 @click.option(
-    "--scheduler_type",
+    "--scheduler-type",
     "scheduler_type",
     type=click.Choice(list(scheduler_import_mapper.keys())),
 )
@@ -259,7 +260,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
 @click.option("--machine-ads", "machine_ads", type=str, default=None)
 @click.option("--job-ads", "job_ads", type=str, default=None)
 @click.option(
-    "--scheduler_type",
+    "--scheduler-type",
     "scheduler_type",
     type=click.Choice(list(scheduler_import_mapper.keys())),
 )
