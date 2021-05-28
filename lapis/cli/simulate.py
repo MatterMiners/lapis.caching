@@ -114,7 +114,7 @@ def static(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, po
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
     simulator.create_job_generator(
-        job_input=open(infile, "r"),
+        job_input=infile,
         job_reader=partial(
             job_import_mapper[file_type],
             calculation_efficiency=ctx.obj["calculation_efficiency"],
@@ -202,7 +202,7 @@ def dynamic(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, p
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
     simulator.create_job_generator(
-        job_input=open(infile, "r"),
+        job_input=infile,
         job_reader=partial(
             job_import_mapper[file_type],
             calculation_efficiency=ctx.obj["calculation_efficiency"],
@@ -298,7 +298,7 @@ def hybrid(ctx, job_file, pre_job_rank, machine_ads, job_ads, scheduler_type, st
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
     simulator.create_job_generator(
-        job_input=open(infile, "r"),
+        job_input=infile,
         job_reader=partial(
             job_import_mapper[file_type],
             calculation_efficiency=ctx.obj["calculation_efficiency"],
