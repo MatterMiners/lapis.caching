@@ -152,10 +152,10 @@ def static(
     )
     click.echo(
         "scheduler configuration: \n "
-        "\tscheduler type: {}\n\n"
-        "\tpre job rank: {} \n\n"
-        "\tmachine classads:\n \t{}\n\n"
-        "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
+        f"\tscheduler type: {scheduler_type}\n\n"
+        f"\tpre job rank: {pre_job_rank} \n\n"
+        f"\tmachine classads:\n \t{machine_ads}\n\n"
+        f"\tjob classads: {job_ads}"
     )
 
     if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any(
