@@ -39,8 +39,7 @@ storage_import_mapper = {
     "filehitrate": storage_reader_filebased_hitrate_caching,
 }
 
-"""Simulation CLI, pay attention to the fact that the random seed is currently set to a
-fixed value"""
+"""Simulation CLI, pay attention to the fact that there is currently only one throughput parameter for all storages available"""
 
 
 @click.group()
@@ -141,14 +140,19 @@ def static(
     cache_hitrate,
 ):
     click.echo("starting static environment")
-    simulator = Simulator(seed=ctx.obj["seed"])
-    infile, file_type = job_file
-    simulator.create_job_generator(
-        job_input=infile,
-        job_reader=partial(
-            job_import_mapper[file_type],
-            calculation_efficiency=ctx.obj["calculation_efficiency"],
-        ),
+    simulator = create_simulator(
+        ctx=ctx,
+        job_file=job_file,
+        pre_job_rank=pre_job_rank,
+        machine_ads=machine_ads,
+        job_ads=job_ads,
+        scheduler_type=scheduler_type,
+        static_pool_files=pool_files,
+        dynamic_pool_files=(),
+        storage_files=storage_files,
+        remote_throughput=remote_throughput,
+        filebased_caching=filebased_caching,
+        cache_hitrate=cache_hitrate,
     )
     click.echo(
         "scheduler configuration: \n "
@@ -157,40 +161,6 @@ def static(
         f"\tmachine classads:\n \t{machine_ads}\n\n"
         f"\tjob classads: {job_ads}"
     )
-
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any(
-        (pre_job_rank, machine_ads, job_ads)
-    ):
-        simulator.job_scheduler = CondorClassadJobScheduler(
-            job_queue=simulator.job_queue,
-            pre_job_rank=pre_job_rank,
-            machine_ad=machine_ads,
-            job_ad=job_ads,
-        )
-    else:
-        simulator.create_scheduler(
-            scheduler_type=scheduler_import_mapper[scheduler_type]
-        )
-
-    for current_storage_files in storage_files:
-        assert all(current_storage_files), "All storage inputs have to be set"
-        simulator.create_connection_module(remote_throughput, filebased_caching)
-        storage_file, storage_content_file, storage_type = current_storage_files
-        simulator.create_storage(
-            storage_input=storage_file,
-            storage_content_input=storage_content_file,
-            storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this
-        )
-    for current_pool in pool_files:
-        pool_file, pool_file_type = current_pool
-        if "dummycluster" in pool_file.name:
-            simulator.create_connection_module(float("Inf"))
-        simulator.create_pools(
-            pool_input=pool_file,
-            pool_reader=pool_import_mapper[pool_file_type],
-            pool_type=StaticPool,
-        )
     simulator.enable_monitoring()
     simulator.run(until=ctx.obj["until"])
 
@@ -258,57 +228,27 @@ def dynamic(
     cache_hitrate,
 ):
     click.echo("starting dynamic environment")
-    simulator = Simulator(seed=ctx.obj["seed"])
-    infile, file_type = job_file
-    simulator.create_job_generator(
-        job_input=infile,
-        job_reader=partial(
-            job_import_mapper[file_type],
-            calculation_efficiency=ctx.obj["calculation_efficiency"],
-        ),
+    simulator = create_simulator(
+        ctx=ctx,
+        job_file=job_file,
+        pre_job_rank=pre_job_rank,
+        machine_ads=machine_ads,
+        job_ads=job_ads,
+        scheduler_type=scheduler_type,
+        static_pool_files=(),
+        dynamic_pool_files=pool_files,
+        storage_files=storage_files,
+        remote_throughput=remote_throughput,
+        filebased_caching=filebased_caching,
+        cache_hitrate=cache_hitrate,
     )
     click.echo(
         "scheduler configuration: \n "
-        "\tscheduler type: {}\n\n"
-        "\tpre job rank: {} \n\n"
-        "\tmachine classads:\n \t{}\n\n"
-        "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
+        f"\tscheduler type: {scheduler_type}\n\n"
+        f"\tpre job rank: {pre_job_rank} \n\n"
+        f"\tmachine classads:\n \t{machine_ads}\n\n"
+        f"\tjob classads: {job_ads}"
     )
-
-    if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any(
-        (pre_job_rank, machine_ads, job_ads)
-    ):
-        simulator.job_scheduler = CondorClassadJobScheduler(
-            job_queue=simulator.job_queue,
-            pre_job_rank=pre_job_rank,
-            machine_ad=machine_ads,
-            job_ad=job_ads,
-        )
-    else:
-        simulator.create_scheduler(
-            scheduler_type=scheduler_import_mapper[scheduler_type]
-        )
-
-    for current_storage_files in storage_files:
-        assert all(current_storage_files), "All storage inputs have to be set"
-        simulator.create_connection_module(remote_throughput, filebased_caching)
-        storage_file, storage_content_file, storage_type = current_storage_files
-        simulator.create_storage(
-            storage_input=storage_file,
-            storage_content_input=storage_content_file,
-            storage_reader=storage_import_mapper[storage_type],
-            storage_type=FileBasedHitrateStorage,  # TODO: Generalize this
-        )
-    for current_pool in pool_files:
-        pool_file, pool_file_type = current_pool
-        if "dummycluster" in pool_file.name:
-            simulator.create_connection_module(float("Inf"))
-        simulator.create_pools(
-            pool_input=pool_file,
-            pool_reader=pool_import_mapper[pool_file_type],
-            pool_type=Pool,
-            controller=SimulatedLinearController,
-        )
     simulator.enable_monitoring()
     simulator.run(until=ctx.obj["until"])
 
@@ -384,6 +324,47 @@ def hybrid(
     cache_hitrate,
 ):
     click.echo("starting hybrid environment")
+    simulator = create_simulator(
+        ctx=ctx,
+        job_file=job_file,
+        pre_job_rank=pre_job_rank,
+        machine_ads=machine_ads,
+        job_ads=job_ads,
+        scheduler_type=scheduler_type,
+        static_pool_files=static_pool_files,
+        dynamic_pool_files=dynamic_pool_files,
+        storage_files=storage_files,
+        remote_throughput=remote_throughput,
+        filebased_caching=filebased_caching,
+        cache_hitrate=cache_hitrate,
+    )
+    click.echo(
+        "scheduler configuration: \n "
+        f"\tscheduler type: {scheduler_type}\n\n"
+        f"\tpre job rank: {pre_job_rank} \n\n"
+        f"\tmachine classads:\n \t{machine_ads}\n\n"
+        f"\tjob classads: {job_ads}"
+    )
+    simulator.enable_monitoring()
+    simulator.run(until=ctx.obj["until"])
+
+
+def create_simulator(
+    ctx,
+    job_file,
+    pre_job_rank,
+    machine_ads,
+    job_ads,
+    scheduler_type,
+    static_pool_files,
+    dynamic_pool_files,
+    storage_files,
+    remote_throughput,
+    filebased_caching,
+    cache_hitrate,
+):
+    """Helper function for generating the simulator object"""
+
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
     simulator.create_job_generator(
@@ -392,13 +373,6 @@ def hybrid(
             job_import_mapper[file_type],
             calculation_efficiency=ctx.obj["calculation_efficiency"],
         ),
-    )
-    click.echo(
-        "scheduler configuration: \n "
-        "\tscheduler type: {}\n\n"
-        "\tpre job rank: {} \n\n"
-        "\tmachine classads:\n \t{}\n\n"
-        "\tjob classads: {}".format(scheduler_type, pre_job_rank, machine_ads, job_ads)
     )
 
     if scheduler_import_mapper[scheduler_type] == CondorClassadJobScheduler and any(
@@ -416,7 +390,7 @@ def hybrid(
         )
 
     for current_storage_files in storage_files:
-        assert all(current_storage_files), "All storage inputs have to be set"
+        assert all(current_storage_files), "All storage inputs have to be available"
         simulator.create_connection_module(remote_throughput, filebased_caching)
         storage_file, storage_content_file, storage_type = current_storage_files
         simulator.create_storage(
@@ -444,8 +418,8 @@ def hybrid(
             pool_type=Pool,
             controller=SimulatedLinearController,
         )
-    simulator.enable_monitoring()
-    simulator.run(until=ctx.obj["until"])
+
+    return simulator
 
 
 if __name__ == "__main__":
