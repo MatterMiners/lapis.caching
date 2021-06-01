@@ -39,7 +39,8 @@ storage_import_mapper = {
     "filehitrate": storage_reader_filebased_hitrate_caching,
 }
 
-"""Simulation CLI, pay attention to the fact that there is currently only one throughput parameter for all storages available"""
+"""Simulation CLI, pay attention to the fact that there is currently only one
+throughput parameter for all storages available"""
 
 
 @click.group()
@@ -75,182 +76,6 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
         )
         telegrafHandler.setFormatter(LineProtocolFormatter(resolution=1))
         monitoring_logger.addHandler(telegrafHandler)
-
-
-@cli.command()
-@click.option(
-    "--job-file",
-    "job_file",
-    type=(click.File("r"), click.Choice(list(job_import_mapper.keys()))),
-)
-@click.option("--pre-job-rank", "pre_job_rank", type=str, default=None)
-@click.option("--machine-ads", "machine_ads", type=str, default=None)
-@click.option("--job-ads", "job_ads", type=str, default=None)
-@click.option(
-    "--scheduler-type",
-    "scheduler_type",
-    type=click.Choice(list(scheduler_import_mapper.keys())),
-)
-@click.option(
-    "--pool-files",
-    "pool_files",
-    type=(click.File("r"), click.Choice(list(pool_import_mapper.keys()))),
-    multiple=True,
-    help="Tuple of `(pool_file,pool_file_type)`",
-)
-@click.option(
-    "--storage-files",
-    "storage_files",
-    type=(
-        click.File("r"),
-        click.File("r"),
-        click.Choice(list(storage_import_mapper.keys())),
-    ),
-    default=(None, None, None),
-    multiple=True,
-    help="Tuple of `(storage_file,storage_content_file,storage_type)`",
-)
-@click.option(
-    "--remote-throughput",
-    "remote_throughput",
-    type=float,
-    default=1.0,
-    help="Parameter to set the network bandwidth to remote",
-)
-@click.option(
-    "--filebased_caching",
-    "filebased_caching",
-    is_flag=True,
-    help="Flag to set filebased caching on/off",
-    default=False,
-)
-@click.option("--cache-hitrate", "cache_hitrate", type=float, default=None)
-@click.pass_context
-def static(
-    ctx,
-    job_file,
-    pre_job_rank,
-    machine_ads,
-    job_ads,
-    scheduler_type,
-    pool_files,
-    storage_files,
-    remote_throughput,
-    filebased_caching,
-    cache_hitrate,
-):
-    click.echo("starting static environment")
-    simulator = create_simulator(
-        ctx=ctx,
-        job_file=job_file,
-        pre_job_rank=pre_job_rank,
-        machine_ads=machine_ads,
-        job_ads=job_ads,
-        scheduler_type=scheduler_type,
-        static_pool_files=pool_files,
-        dynamic_pool_files=(),
-        storage_files=storage_files,
-        remote_throughput=remote_throughput,
-        filebased_caching=filebased_caching,
-        cache_hitrate=cache_hitrate,
-    )
-    click.echo(
-        "scheduler configuration: \n "
-        f"\tscheduler type: {scheduler_type}\n\n"
-        f"\tpre job rank: {pre_job_rank} \n\n"
-        f"\tmachine classads:\n \t{machine_ads}\n\n"
-        f"\tjob classads: {job_ads}"
-    )
-    simulator.enable_monitoring()
-    simulator.run(until=ctx.obj["until"])
-
-
-@cli.command()
-@click.option(
-    "--job-file",
-    "job_file",
-    type=(click.File("r"), click.Choice(list(job_import_mapper.keys()))),
-)
-@click.option("--pre-job-rank", "pre_job_rank", type=str, default=None)
-@click.option("--machine-ads", "machine_ads", type=str, default=None)
-@click.option("--job-ads", "job_ads", type=str, default=None)
-@click.option(
-    "--scheduler-type",
-    "scheduler_type",
-    type=click.Choice(list(scheduler_import_mapper.keys())),
-)
-@click.option(
-    "--pool-files",
-    "pool_files",
-    type=(click.File("r"), click.Choice(list(pool_import_mapper.keys()))),
-    multiple=True,
-    help="Tuple of `(pool_file,pool_file_type)`",
-)
-@click.option(
-    "--storage-files",
-    "storage_files",
-    type=(
-        click.File("r"),
-        click.File("r"),
-        click.Choice(list(storage_import_mapper.keys())),
-    ),
-    default=(None, None, None),
-    multiple=True,
-    help="Tuple of `(storage_file,storage_content_file,storage_type)`",
-)
-@click.option(
-    "--remote-throughput",
-    "remote_throughput",
-    type=float,
-    default=1.0,
-    help="Parameter to set the network bandwidth to remote",
-)
-@click.option(
-    "--filebased_caching",
-    "filebased_caching",
-    is_flag=True,
-    help="Flag to set filebased caching on/off",
-    default=False,
-)
-@click.option("--cache-hitrate", "cache_hitrate", type=float, default=None)
-@click.pass_context
-def dynamic(
-    ctx,
-    job_file,
-    pre_job_rank,
-    machine_ads,
-    job_ads,
-    scheduler_type,
-    pool_files,
-    storage_files,
-    remote_throughput,
-    filebased_caching,
-    cache_hitrate,
-):
-    click.echo("starting dynamic environment")
-    simulator = create_simulator(
-        ctx=ctx,
-        job_file=job_file,
-        pre_job_rank=pre_job_rank,
-        machine_ads=machine_ads,
-        job_ads=job_ads,
-        scheduler_type=scheduler_type,
-        static_pool_files=(),
-        dynamic_pool_files=pool_files,
-        storage_files=storage_files,
-        remote_throughput=remote_throughput,
-        filebased_caching=filebased_caching,
-        cache_hitrate=cache_hitrate,
-    )
-    click.echo(
-        "scheduler configuration: \n "
-        f"\tscheduler type: {scheduler_type}\n\n"
-        f"\tpre job rank: {pre_job_rank} \n\n"
-        f"\tmachine classads:\n \t{machine_ads}\n\n"
-        f"\tjob classads: {job_ads}"
-    )
-    simulator.enable_monitoring()
-    simulator.run(until=ctx.obj["until"])
 
 
 @cli.command()
@@ -324,46 +149,6 @@ def hybrid(
     cache_hitrate,
 ):
     click.echo("starting hybrid environment")
-    simulator = create_simulator(
-        ctx=ctx,
-        job_file=job_file,
-        pre_job_rank=pre_job_rank,
-        machine_ads=machine_ads,
-        job_ads=job_ads,
-        scheduler_type=scheduler_type,
-        static_pool_files=static_pool_files,
-        dynamic_pool_files=dynamic_pool_files,
-        storage_files=storage_files,
-        remote_throughput=remote_throughput,
-        filebased_caching=filebased_caching,
-        cache_hitrate=cache_hitrate,
-    )
-    click.echo(
-        "scheduler configuration: \n "
-        f"\tscheduler type: {scheduler_type}\n\n"
-        f"\tpre job rank: {pre_job_rank} \n\n"
-        f"\tmachine classads:\n \t{machine_ads}\n\n"
-        f"\tjob classads: {job_ads}"
-    )
-    simulator.enable_monitoring()
-    simulator.run(until=ctx.obj["until"])
-
-
-def create_simulator(
-    ctx,
-    job_file,
-    pre_job_rank,
-    machine_ads,
-    job_ads,
-    scheduler_type,
-    static_pool_files,
-    dynamic_pool_files,
-    storage_files,
-    remote_throughput,
-    filebased_caching,
-    cache_hitrate,
-):
-    """Helper function for generating the simulator object"""
 
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
@@ -399,6 +184,7 @@ def create_simulator(
             storage_reader=storage_import_mapper[storage_type],
             storage_type=FileBasedHitrateStorage,  # TODO: Generalize this
         )
+
     for current_pool in static_pool_files:
         pool_file, pool_file_type = current_pool
         if "dummycluster" in pool_file.name:
@@ -408,6 +194,7 @@ def create_simulator(
             pool_reader=pool_import_mapper[pool_file_type],
             pool_type=StaticPool,
         )
+
     for current_pool in dynamic_pool_files:
         pool_file, pool_file_type = current_pool
         if "dummycluster" in pool_file.name:
@@ -419,7 +206,16 @@ def create_simulator(
             controller=SimulatedLinearController,
         )
 
-    return simulator
+    click.echo(
+        "scheduler configuration: \n "
+        f"\tscheduler type: {scheduler_type}\n\n"
+        f"\tpre job rank: {pre_job_rank} \n\n"
+        f"\tmachine classads:\n \t{machine_ads}\n\n"
+        f"\tjob classads: {job_ads}"
+    )
+
+    simulator.enable_monitoring()
+    simulator.run(until=ctx.obj["until"])
 
 
 if __name__ == "__main__":
