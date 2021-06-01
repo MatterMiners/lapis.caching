@@ -297,11 +297,11 @@ def dynamic(
     "--remote-throughput",
     "remote_throughput",
     type=float,
-    default=10,
+    default=1.0,
     help="Parameter to set the network bandwidth to remote",
 )
 @click.option(
-    "--filebased_caching",
+    "--filebased-caching",
     "filebased_caching",
     is_flag=True,
     help="Flag to set filebased caching on/off",
@@ -363,7 +363,8 @@ def create_simulator(
     filebased_caching,
     cache_hitrate,
 ):
-    """Helper function for generating the simulator object"""
+    """Helper function for generating the simulator object
+    """
 
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
