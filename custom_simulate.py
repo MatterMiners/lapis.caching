@@ -18,7 +18,7 @@ from lapis.storage_io.storage import (
     storage_reader_filebased_hitrate_caching,
 )
 
-from lapis.scheduler import CondorClassadJobScheduler,
+from lapis.scheduler import CondorClassadJobScheduler
 
 from lapis.simulator import Simulator
 

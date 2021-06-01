@@ -363,8 +363,7 @@ def create_simulator(
     filebased_caching,
     cache_hitrate,
 ):
-    """Helper function for generating the simulator object
-    """
+    """Helper function for generating the simulator object"""
 
     simulator = Simulator(seed=ctx.obj["seed"])
     infile, file_type = job_file
