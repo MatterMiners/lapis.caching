@@ -19,15 +19,15 @@ from lapis.storage_io.storage import (
 )
 
 from lapis.scheduler import CondorClassadJobScheduler
-from lapis.simulator import Simulator
 
+from lapis.simulator import Simulator
 
 from lapis.monitor.core import LoggingUDPSocketHandler
 from lapis.monitor.timefilter import SimulationTimeFilter
 
 from time import time
 
-pre_job_rank_defaults = "0"
+pre_job_rank_default = "0"
 
 machine_ad_defaults = """
     requirements = target.requestcpus <= my.cpus
@@ -35,8 +35,9 @@ machine_ad_defaults = """
     """.strip()
 
 job_ad_defaults = """
-requirements = my.requestcpus <= target.cpus && my.requestmemory <= target.memory
-rank = 0"""
+    requirements = my.requestcpus <= target.cpus && my.requestmemory <= target.memory
+    rank = 0
+    """.strip()
 
 last_step = 0
 
@@ -75,7 +76,7 @@ def ini_and_run(
     until=None,
     calculation_efficiency=1.0,
     log_telegraf=False,
-    pre_job_rank=pre_job_rank_defaults,
+    pre_job_rank=pre_job_rank_default,
     machine_ads=machine_ad_defaults,
     job_ads=job_ad_defaults,
     additional_identifier=None,
