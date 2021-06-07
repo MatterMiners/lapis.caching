@@ -43,42 +43,13 @@ storage_import_mapper = {
 throughput parameter for all storages available"""
 
 
-@click.group()
+@click.command()
 @click.option("--seed", type=int, default=1234, help="random seed")
 @click.option("--until", type=float)
 @click.option("--log-tcp", "log_tcp", is_flag=True)
 @click.option("--log-file", "log_file", type=click.File("w"))
 @click.option("--log-telegraf", "log_telegraf", is_flag=True)
 @click.option("--calculation-efficiency", type=float, default=1.0)
-@click.pass_context
-def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficiency):
-    ctx.ensure_object(dict)
-    ctx.obj["seed"] = seed
-    ctx.obj["until"] = until
-    ctx.obj["calculation_efficiency"] = calculation_efficiency
-    monitoring_logger = logging.getLogger()
-    monitoring_logger.setLevel(logging.DEBUG)
-    time_filter = SimulationTimeFilter()
-    monitoring_logger.addFilter(time_filter)
-    if log_tcp:
-        socketHandler = LoggingSocketHandler(
-            "localhost", logging.handlers.DEFAULT_TCP_LOGGING_PORT
-        )
-        socketHandler.setFormatter(JsonFormatter())
-        monitoring_logger.addHandler(socketHandler)
-    if log_file:
-        streamHandler = logging.StreamHandler(stream=log_file)
-        streamHandler.setFormatter(JsonFormatter())
-        monitoring_logger.addHandler(streamHandler)
-    if log_telegraf:
-        telegrafHandler = LoggingUDPSocketHandler(
-            "localhost", logging.handlers.DEFAULT_UDP_LOGGING_PORT
-        )
-        telegrafHandler.setFormatter(LineProtocolFormatter(resolution=1))
-        monitoring_logger.addHandler(telegrafHandler)
-
-
-@cli.command()
 @click.option(
     "--job-file",
     "job_file",
@@ -133,9 +104,13 @@ def cli(ctx, seed, until, log_tcp, log_file, log_telegraf, calculation_efficienc
     default=False,
 )
 @click.option("--cache-hitrate", "cache_hitrate", type=float, default=None)
-@click.pass_context
-def hybrid(
-    ctx,
+def cli(
+    seed,
+    until,
+    log_tcp,
+    log_file,
+    log_telegraf,
+    calculation_efficiency,
     job_file,
     pre_job_rank,
     machine_ads,
@@ -148,15 +123,36 @@ def hybrid(
     filebased_caching,
     cache_hitrate,
 ):
+    monitoring_logger = logging.getLogger()
+    monitoring_logger.setLevel(logging.DEBUG)
+    time_filter = SimulationTimeFilter()
+    monitoring_logger.addFilter(time_filter)
+    if log_tcp:
+        socketHandler = LoggingSocketHandler(
+            "localhost", logging.handlers.DEFAULT_TCP_LOGGING_PORT
+        )
+        socketHandler.setFormatter(JsonFormatter())
+        monitoring_logger.addHandler(socketHandler)
+    if log_file:
+        streamHandler = logging.StreamHandler(stream=log_file)
+        streamHandler.setFormatter(JsonFormatter())
+        monitoring_logger.addHandler(streamHandler)
+    if log_telegraf:
+        telegrafHandler = LoggingUDPSocketHandler(
+            "localhost", logging.handlers.DEFAULT_UDP_LOGGING_PORT
+        )
+        telegrafHandler.setFormatter(LineProtocolFormatter(resolution=1))
+        monitoring_logger.addHandler(telegrafHandler)
+
     click.echo("starting hybrid environment")
 
-    simulator = Simulator(seed=ctx.obj["seed"])
+    simulator = Simulator(seed=seed)
     infile, file_type = job_file
     simulator.create_job_generator(
         job_input=infile,
         job_reader=partial(
             job_import_mapper[file_type],
-            calculation_efficiency=ctx.obj["calculation_efficiency"],
+            calculation_efficiency=calculation_efficiency,
         ),
     )
 
@@ -215,7 +211,7 @@ def hybrid(
     )
 
     simulator.enable_monitoring()
-    simulator.run(until=ctx.obj["until"])
+    simulator.run(until=until)
 
 
 if __name__ == "__main__":
