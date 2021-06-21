@@ -100,7 +100,7 @@ class StorageElement(Storage):
         self,
         files: Dict[str, StoredFile],
         name: Optional[str] = None,
-        sitename: Optional[str] = None,
+        sitename: str = "default",
         size: int = 1000 * 1000 * 1000 * 1000,
         throughput_limit: int = 10 * 1000 * 1000 * 1000,
         deletion_duration: float = 5,

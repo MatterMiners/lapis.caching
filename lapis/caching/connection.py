@@ -1,6 +1,6 @@
 import random
 
-from typing import Union, Optional, Tuple
+from typing import Dict, List, Union, Optional, Tuple
 from usim import Scope, time
 from lapis.caching.monitoredpipe import MonitoredPipe
 
@@ -48,7 +48,7 @@ class Connection(object):
         :param throughput: throughput of the connection's remote storage
         :param filebased_caching:
         """
-        self.storages = dict()
+        self.storages: Dict[str, Optional[List[StorageElement]]] = {}
         """dictionary containing storage objects known to the connection module"""
         self.remote_connection = RemoteStorage(throughput=throughput)
         """pipe object representing the connection to a remote storage"""
@@ -95,7 +95,7 @@ class Connection(object):
             self.storages[storage_element.sitename] = [storage_element]
 
     def _determine_inputfile_source(
-        self, requested_file: RequestedFile, dronesite: Optional[str]
+        self, requested_file: RequestedFile, dronesite: str
     ) -> Union[StorageElement, RemoteStorage]:
         """
         Collects NamedTuples containing the amount of data of the requested file
@@ -124,7 +124,7 @@ class Connection(object):
         return self.remote_connection
 
     async def stream_file(
-        self, requested_file: RequestedFile, dronesite: Optional[str]
+        self, requested_file: RequestedFile, dronesite: str
     ) -> TransferStatistics:
         """
         Determines which storage object is used to provide the requested file and
@@ -136,12 +136,11 @@ class Connection(object):
         :param dronesite:
         """
         used_connection = self._determine_inputfile_source(requested_file, dronesite)
-        if self._filebased_caching:
-            if used_connection == self.remote_connection and self.storages.get(
-                dronesite, None
-            ):
-                try:
-                    potential_cache = random.choice(self.storages[dronesite])
+        if self._filebased_caching and used_connection == self.remote_connection:
+            try:
+                storages = self.storages[dronesite]
+                if storages:
+                    potential_cache = random.choice(storages)
                     cache_file, files_for_deletion = self.caching_algorithm.consider(
                         file=requested_file, storage=potential_cache
                     )
@@ -155,8 +154,8 @@ class Connection(object):
                             f"File {requested_file.filename}: File wasnt "
                             f"cached @ {time.now}"
                         )
-                except KeyError:
-                    pass
+            except KeyError:
+                pass
         transfer_statistics = await used_connection.transfer(requested_file)
         return transfer_statistics
 
@@ -183,8 +182,9 @@ class Connection(object):
         if "hitrates" in random_inputfile_information.keys():
             cached_bytes = sum(
                 [
-                    file["usedsize"] * file["hitrates"].get(drone.sitename, 0.0)
+                    file["usedsize"] * file["hitrates"].get(cache.name, 0.0)
                     for file in requested_files.values()
+                    for cache in self.storages.get(drone.sitename, [])
                 ]
             )
             # TODO: should be 1 in case of requested_bytes == 0
