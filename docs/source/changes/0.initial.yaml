@@ -1,0 +1,6 @@
+category: added
+summary: "Initial code for Caching Plugin"
+description: |
+  Add the initial code based on the master thesis by tfesenbecker while taking care
+  to move the generic code into the original lapis base repository and caching specific
+  code into this namespace plugin.

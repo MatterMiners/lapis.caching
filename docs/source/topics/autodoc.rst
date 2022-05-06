@@ -1,13 +1,13 @@
 Detailed documentation of all relevant modules
 ==============================================
 
-.. automodule:: lapis.connection
+.. automodule:: lapis.caching.connection
 
-.. automodule:: lapis.files
+.. automodule:: lapis.caching.files
 
-.. automodule:: lapis.storageelement
+.. automodule:: lapis.caching.storageelement
 
-.. automodule:: lapis.monitoredpipe
+.. automodule:: lapis.caching.monitoredpipe
 
 Other modules from LAPIS
 ------------------------
