@@ -51,6 +51,7 @@ class CachingJob(Job):
 
     As the simulation of data transfers is used to simulate and study caching,
     the following metadata are introduced and used for monitoring purposes.
+    :param _read_from_cache: true if job read data from cache
     :param _cached_data: the amount of input data that is currently cached
     :param failed_matches: number of times a match of this job to a resource was
     rejected (see scheduler for details)
@@ -65,6 +66,7 @@ class CachingJob(Job):
         "used_inputfiles",
         "calculation_efficiency",
         "__weakref__",
+        "_read_from_cache",
         "_cached_data",
         "_total_input_data",
         "_original_walltime",
@@ -109,6 +111,8 @@ class CachingJob(Job):
         """dict of input files requested by the job and respective file sizes"""
         self.used_inputfiles = used_resources.pop("inputfiles", None)
         """dict of input files read by the job and respective amount of read data"""
+        self._read_from_cache = 0
+        """flag indicating whether the job read from the cache"""
         self._cached_data = 0
         """expectation value for the amount of data that was read from a cache by
         this job"""
@@ -189,14 +193,12 @@ class CachingJob(Job):
             (
                 transfer_time,
                 bytes_from_remote,  # FIXME: include somewhere?
-                bytes_from_cache,
+                bytes_from_cache,  # FIXME: include somewhere?
                 provides_file,
             ) = await self.drone.connection.transfer_files(
                 drone=self.drone, requested_files=self.used_inputfiles
             )
-            self._cached_data = bytes_from_cache
-            if provides_file == 1:
-                assert bytes_from_cache > 0, "must be bigger 0 when read from cache"
+            self._read_from_cache = provides_file
         except AttributeError:
             pass
         print("end transfer files ", time.now)
