@@ -84,7 +84,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
         try:
             return self._temp["cores"] < 1
         except KeyError:
-            return self._wrapped.theoretical_available_resources["cores"] < 1
+            return self._wrapped.unallocated_resources["cores"] < 1
 
     def __getitem__(self, item):
         """
@@ -105,7 +105,7 @@ class WrappedClassAd(ClassAd, Generic[DJ]):
             :return: value of respective resource
             """
             if isinstance(self._wrapped, Drone):
-                return self._wrapped.theoretical_available_resources[name]
+                return self._wrapped.unallocated_resources[name]
             if requested:
                 return self._wrapped.resources[name]
             return self._wrapped.used_resources[name]
@@ -293,13 +293,13 @@ class CondorJobScheduler(JobScheduler):
                 for key in {*cluster[0].pool_resources, *drone.pool_resources}:
                     if drone_resources:
                         current_distance += abs(
-                            cluster[0].theoretical_available_resources.get(key, 0)
+                            cluster[0].unallocated_resources.get(key, 0)
                             - drone_resources.get(key, 0)
                         )
                     else:
                         current_distance += abs(
-                            cluster[0].theoretical_available_resources.get(key, 0)
-                            - drone.theoretical_available_resources.get(key, 0)
+                            cluster[0].unallocated_resources.get(key, 0)
+                            - drone.unallocated_resources.get(key, 0)
                         )
                 if current_distance < distance:
                     minimum_distance_cluster = cluster
@@ -327,7 +327,7 @@ class CondorJobScheduler(JobScheduler):
                         await sampling_required.put(self.job_queue)
                         await sampling_required.put(UserDemand(len(self.job_queue)))
                         self.unregister_drone(best_match)
-                        left_resources = best_match.theoretical_available_resources
+                        left_resources = best_match.unallocated_resources
                         left_resources = {
                             key: value - job.resources.get(key, 0)
                             for key, value in left_resources.items()
@@ -361,7 +361,7 @@ class CondorJobScheduler(JobScheduler):
         for cluster in self.drone_cluster:
             drone = cluster[0]
             cost = 0
-            resources = drone.theoretical_available_resources
+            resources = drone.unallocated_resources
             for resource_type in job.resources:
                 if resources.get(resource_type, 0) < job.resources[resource_type]:
                     # Inf for all job resources that a drone does not support
@@ -906,7 +906,7 @@ class CondorClassadJobScheduler(JobScheduler):
                     matched_drone._temp[key] = (
                         matched_drone._temp.get(
                             key,
-                            matched_drone._wrapped.theoretical_available_resources[key],
+                            matched_drone._wrapped.unallocated_resources[key],
                         )
                         - value
                     )

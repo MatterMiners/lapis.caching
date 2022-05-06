@@ -265,7 +265,7 @@ def drone_statistics_caching(drone: "Drone") -> List[Dict]:
     :return: list of records for logging
     """
     full_resources = drone.pool_resources
-    resources = drone.theoretical_available_resources
+    resources = drone.unallocated_resources
 
     results = [
         {

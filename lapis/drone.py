@@ -1,7 +1,7 @@
 from lapis.workernode import WorkerNode
 
 from usim import time, Scope, instant, ResourcesUnavailable
-from typing import Optional, TYPE_CHECKING
+from typing import Callable, Dict, List, TYPE_CHECKING
 
 from lapis.cachingjob import CachingJob
 
@@ -19,15 +19,12 @@ class Drone(WorkerNode):
     def __init__(
         self,
         scheduler,
-        pool_resources: Optional[dict] = None,
-        scheduling_duration: Optional[float] = None,
-        ignore_resources: list = None,
+        pool_resources: Dict[str, float],
+        scheduling_duration: float,
+        ignore_resources: List[str] = None,
         sitename: str = None,
         connection: "Connection" = None,
-        empty: callable = lambda drone: drone.theoretical_available_resources.get(
-            "cores", 1
-        )
-        < 1,
+        empty: Callable = lambda drone: drone.unallocated_resources.get("cores", 1) < 1,
     ):
         """
         Drone initialization
@@ -88,7 +85,7 @@ class Drone(WorkerNode):
             DroneStatusCaching(
                 repr(self),
                 self.pool_resources["cores"],
-                self.theoretical_available_resources["cores"],
+                self.unallocated_resources["cores"],
                 self.jobs_with_cached_data,
             )
         )
@@ -125,7 +122,7 @@ class Drone(WorkerNode):
             DroneStatusCaching(
                 repr(self),
                 self.pool_resources["cores"],
-                self.theoretical_available_resources["cores"],
+                self.unallocated_resources["cores"],
                 self.jobs_with_cached_data,
             )
         )
@@ -164,7 +161,7 @@ class Drone(WorkerNode):
                         DroneStatusCaching(
                             repr(self),
                             self.pool_resources["cores"],
-                            self.theoretical_available_resources["cores"],
+                            self.unallocated_resources["cores"],
                             self.jobs_with_cached_data,
                         )
                     )
@@ -204,7 +201,7 @@ class Drone(WorkerNode):
                 DroneStatusCaching(
                     repr(self),
                     self.pool_resources["cores"],
-                    self.theoretical_available_resources["cores"],
+                    self.unallocated_resources["cores"],
                     self.jobs_with_cached_data,
                 )
             )
