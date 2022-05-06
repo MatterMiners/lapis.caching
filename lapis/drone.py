@@ -153,7 +153,7 @@ class Drone(WorkerNode):
 
             job_execution = scope.do(job.run(self))
             self.jobs += 1
-            if job._cached_data:
+            if job._cached_data > 0:
                 self.jobs_with_cached_data += 1
             try:
                 async with self.resources.claim(**job.resources):
@@ -190,7 +190,7 @@ class Drone(WorkerNode):
                 job_execution.cancel()
                 await instant
             self.jobs -= 1
-            if job._cached_data:
+            if job._cached_data > 0:
                 self.jobs_with_cached_data -= 1
 
             await self.scheduler.job_finished(job)
